@@ -1,15 +1,12 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES6",
     "module": "commonjs",
-    "outDir": "./dist",
-    "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "types": ["node", "express", "jsonwebtoken", "mongoose", "dotenv"]
+    "strict": true,
+    "types": ["node", "express", "dotenv", "jsonwebtoken", "mongoose"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*"]
 }
