@@ -5,18 +5,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "types": [
-      "node",
-      "express",
-      "dotenv",
-      "jsonwebtoken",
-      "mongoose",
-      "bcryptjs"
-    ]
+    "strict": true
   },
   "include": [
-    "src/**/*",
-    "node_modules/@types/**/*"
+    "src/**/*"
   ]
 }
