@@ -1,9 +1,13 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
+// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx'], // ✅ ensures proper resolution
+  base: 'https://lyrix.onrender.com//api/v1',
+  server: {
+    proxy: {
+      '/api': 'http://localhost:5000',
+    },
   },
-})
+});
