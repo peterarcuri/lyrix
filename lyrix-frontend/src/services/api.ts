@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+const isDev = import.meta.env.DEV;
+
 const API = axios.create({
-  baseURL: 'https://lyrix.onrender.com//api/v1',
+  baseURL: isDev
+    ? '/api/v1' // Will be proxied to localhost:5000 by Vite dev server
+    : 'https://lyrix.onrender.com/api/v1', // Direct link in production
 });
 
 export const signup = (data: { email: string; password: string }) =>
