@@ -7,7 +7,7 @@ export default defineConfig({
   base: 'https://lyrix.onrender.com',
   server: {
     proxy: {
-      '/api': 'https://lyrix.onrender.com/api/v1',
+      '/api': 'https://lyrix.onrender.com/',
     },
   },
 });
