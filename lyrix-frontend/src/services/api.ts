@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: 'https://lyrix.onrender.com//api/v1',
 });
 
 export const signup = (data: { email: string; password: string }) =>
