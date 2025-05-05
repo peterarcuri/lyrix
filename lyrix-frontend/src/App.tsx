@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -5,9 +6,9 @@ import Home from './pages/Home';
 import { AuthProvider } from './context/AuthContext';
 import Playlists from './pages/Playlists';
 import Navbar from './components/Navbar';
-import React from 'react';
 
-function App() {
+
+const App = () => {
   return (
     <Router>
       <AuthProvider>

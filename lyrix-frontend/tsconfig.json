@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "types": ["jest", "@testing-library/jest-dom"],
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "jsx": "react",
+    "target": "ESNext",
+    "module": "ESNext",
+    "types": ["jest", "@testing-library/jest-dom"],    
+    "moduleResolution": "Node",
+    "jsx": "react-jsx",
+    "outDir": "dist",
+    "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "setupTests.ts"]
+  "include": ["src", "setupTests.ts"],
+  "exclude": ["dist", "node_modules"]
 }
