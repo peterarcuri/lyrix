@@ -2,6 +2,8 @@
 
 **Lyrix** is a full-stack MERN (MongoDB, Express, React, Node.js) application that lets users search for song lyrics, create custom playlists, and manage their favorite songs — all secured with **JWT authentication**.
 
+🎼 [Explore Lyrix Online ](https://lyrix-one.vercel.app/)
+
 ---
 
 ## 🚀 Features
