@@ -4,7 +4,7 @@ import {
   removeSongFromPlaylist,
   removePlaylist,
   savePlaylists,
-} from '../utils/playlistStorage';
+} from '../../src/utils/playlistStorage';
 import { Playlist } from '../types';
 
 const Playlists: React.FC = () => {

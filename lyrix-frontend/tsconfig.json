@@ -1,21 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "jsx": "react-jsx",
-    "moduleResolution": "Node",
-    "baseUrl": "./src",
-    "typeRoots": ["./node_modules/@types", "./src/types"],
-    "paths": {
-      "*": ["*"]
-    },
-    "rootDir": "src",
-    "outDir": "dist",
-    "strict": true,
+    "target": "ES6",
+    "types": ["jest", "@testing-library/jest-dom"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "jsx": "react",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules"]
+  "include": ["src", "setupTests.ts"]
 }
