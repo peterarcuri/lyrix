@@ -1,6 +1,6 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import SongSearch from './SongSearch';
+import { SongSearch } from './SongSearch';
 import { searchSongs } from '../services/api';
 import { addSongToPlaylist } from '../utils/playlistStorage';
 // Mock the modules

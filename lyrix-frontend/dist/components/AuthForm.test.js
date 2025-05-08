@@ -1,6 +1,6 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
-import AuthForm from './AuthForm';
+import { AuthForm } from './AuthForm';
 import { login } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
