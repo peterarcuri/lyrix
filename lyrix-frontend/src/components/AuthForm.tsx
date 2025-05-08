@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { login, signup } from '../services/api';
+import { login, signup } from '../../src/services/api';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../src/context/AuthContext';
 
 interface AuthFormProps {
   type: 'login' | 'signup';

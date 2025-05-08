@@ -4,21 +4,21 @@ import {
   removeSongFromPlaylist,
   removePlaylist,
   savePlaylists,
-} from '../utils/playlistStorage';
-import { Playlist } from '../types';
+} from '../../src/utils/playlistStorage';
+import { Playlist, Song } from '../../src/types';
 
-  const Playlists: React.FC = () => {
+const Playlists: React.FC = () => {
   const [playlists, setPlaylists] = useState<Playlist[]>(getPlaylists());
-  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(
-    null
-  );
+  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
 
   const handleRemove = (playlistName: string, songId: string) => {
     removeSongFromPlaylist(playlistName, songId);
     const updated = getPlaylists();
     setPlaylists(updated);
+
     if (selectedPlaylist) {
-      const selected = updated.find((p) => p.name === playlistName) || null;
+      const selected: Playlist | null =
+        updated.find((p: Playlist) => p.name === playlistName) || null;
       setSelectedPlaylist(selected);
     }
   };
@@ -48,7 +48,7 @@ import { Playlist } from '../types';
       songs: updatedSongs,
     };
 
-    const updatedPlaylists = playlists.map((p) =>
+    const updatedPlaylists: Playlist[] = playlists.map((p: Playlist) =>
       p.name === selectedPlaylist.name ? updatedPlaylist : p
     );
 
@@ -60,10 +60,7 @@ import { Playlist } from '../types';
   if (selectedPlaylist) {
     return (
       <div className="playlist-container">
-        <button
-          onClick={() => setSelectedPlaylist(null)}
-          className="back-button"
-        >
+        <button onClick={() => setSelectedPlaylist(null)} className="back-button">
           ← Back to Playlists
         </button>
 
@@ -78,7 +75,7 @@ import { Playlist } from '../types';
             </button>
           </div>
           <ul className="song-list">
-            {selectedPlaylist.songs.map((song, index) => (
+            {selectedPlaylist.songs.map((song: Song, index: number) => (
               <li key={song._id} className="song-item">
                 <div className="song-controls">
                   <h4 className="playlist-songtitle-artist">
@@ -119,7 +116,7 @@ import { Playlist } from '../types';
     <div className="playlist-container">
       <h2 className="playlist-title">Your Playlists</h2>
       <ul className="playlist-list">
-        {playlists.map((p) => (
+        {playlists.map((p: Playlist) => (
           <li key={p.name}>
             <button
               onClick={() => setSelectedPlaylist(p)}
