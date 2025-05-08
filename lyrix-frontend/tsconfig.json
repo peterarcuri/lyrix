@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES6",
     "types": ["vite/client", "jest", "@testing-library/jest-dom"],
-    "module": "CommonJS",
+    "module": "ES2020",
     "moduleResolution": "node",
     "jsx": "react",
     "esModuleInterop": true,
