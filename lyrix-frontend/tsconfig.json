@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "types": ["jest", "@testing-library/jest-dom"],
+    "types": ["vite/client", "jest", "@testing-library/jest-dom"],
     "module": "CommonJS",
     "moduleResolution": "node",
     "jsx": "react",
