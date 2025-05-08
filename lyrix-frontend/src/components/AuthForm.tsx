@@ -7,7 +7,7 @@ interface AuthFormProps {
   type: 'login' | 'signup';
 }
 
-export const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
+ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login: setAuth } = useAuth();
@@ -55,4 +55,4 @@ export const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
   );
 };
 
-
+export default AuthForm;

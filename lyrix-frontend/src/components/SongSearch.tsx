@@ -8,7 +8,7 @@ interface SongSearchProps {
   searchResults?: Song[];
 }
 
-export const SongSearch: React.FC<SongSearchProps> = ({ searchResults }) => {
+  const SongSearch: React.FC<SongSearchProps> = ({ searchResults }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Song[]>([]);
   const [playlistName, setPlaylistName] = useState('');
@@ -113,4 +113,4 @@ export const SongSearch: React.FC<SongSearchProps> = ({ searchResults }) => {
   );
 };
 
-
+export default SongSearch;

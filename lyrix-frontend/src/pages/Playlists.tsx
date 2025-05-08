@@ -7,7 +7,7 @@ import {
 } from '../utils/playlistStorage';
 import { Playlist } from '../types';
 
-export const Playlists: React.FC = () => {
+  const Playlists: React.FC = () => {
   const [playlists, setPlaylists] = useState<Playlist[]>(getPlaylists());
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(
     null
@@ -134,4 +134,4 @@ export const Playlists: React.FC = () => {
   );
 };
 
-
+export default Playlists;
