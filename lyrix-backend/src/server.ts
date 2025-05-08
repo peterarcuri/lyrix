@@ -14,7 +14,7 @@ if (!process.env.MONGO_URI) {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const allowedOrigins = ['https://lyrix-one.vercel.app', 'http://localhost:5173'];
+const allowedOrigins = ['https://lyrix-one.vercel.app'];
 
 app.use(cors({
   origin: allowedOrigins,
