@@ -4,7 +4,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Home from './pages/Home';
 import { AuthProvider } from './context/AuthContext';
-import Playlists from './pages/Playlists';
+import { Playlists } from './pages/Playlists';
 import Navbar from './components/Navbar';
 
 
