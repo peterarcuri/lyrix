@@ -1,5 +1,5 @@
 import React from 'react';
-import  SongSearch from '../../src/components/SongSearch';
+import SongSearch from '../components/SongSearch';
 
 export default function Home() {
   return (

@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { searchSongs } from '../../src/services/api';
-import { addSongToPlaylist } from '../../src/utils/playlistStorage';
-import { Song } from '../../src/types';
+import { searchSongs } from '../services/api';
+import { addSongToPlaylist } from '../utils/playlistStorage';
+import { Song } from '../types';
 
 interface SongSearchProps {
   handleSearch?: (query: string) => void;
   searchResults?: Song[];
 }
 
-  const SongSearch: React.FC<SongSearchProps> = ({ searchResults }) => {
-    const [query, setQuery] = useState('');
-    const [results, setResults] = useState<Song[]>([]);
-    const [playlistName, setPlaylistName] = useState('');
-    const [noResults, setNoResults] = useState(false);
+const SongSearch: React.FC<SongSearchProps> = ({ searchResults }) => {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<Song[]>([]);
+  const [playlistName, setPlaylistName] = useState('');
+  const [noResults, setNoResults] = useState(false);
 
 
   // If searchResults are passed in (for tests), use them instead

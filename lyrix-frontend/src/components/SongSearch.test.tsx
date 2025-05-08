@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import  SongSearch  from './SongSearch';
+import SongSearch from './SongSearch';
 import { searchSongs } from '../services/api';
 import { addSongToPlaylist } from '../utils/playlistStorage';
 import { Song } from '../types';

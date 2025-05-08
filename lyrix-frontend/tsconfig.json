@@ -4,7 +4,8 @@
     "module": "ESNext",
     "jsx": "react-jsx",
     "moduleResolution": "Node",
-    "baseUrl": "src",
+    "baseUrl": "./src",
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "paths": {
       "*": ["*"]
     },

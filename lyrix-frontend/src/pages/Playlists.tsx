@@ -4,21 +4,21 @@ import {
   removeSongFromPlaylist,
   removePlaylist,
   savePlaylists,
-} from '../../src/utils/playlistStorage';
-import { Playlist, Song } from '../../src/types';
+} from '../utils/playlistStorage';
+import { Playlist } from '../types';
 
 const Playlists: React.FC = () => {
   const [playlists, setPlaylists] = useState<Playlist[]>(getPlaylists());
-  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
+  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(
+    null
+  );
 
   const handleRemove = (playlistName: string, songId: string) => {
     removeSongFromPlaylist(playlistName, songId);
     const updated = getPlaylists();
     setPlaylists(updated);
-
     if (selectedPlaylist) {
-      const selected: Playlist | null =
-        updated.find((p: Playlist) => p.name === playlistName) || null;
+      const selected = updated.find((p) => p.name === playlistName) || null;
       setSelectedPlaylist(selected);
     }
   };
@@ -48,7 +48,7 @@ const Playlists: React.FC = () => {
       songs: updatedSongs,
     };
 
-    const updatedPlaylists: Playlist[] = playlists.map((p: Playlist) =>
+    const updatedPlaylists = playlists.map((p) =>
       p.name === selectedPlaylist.name ? updatedPlaylist : p
     );
 
@@ -60,7 +60,10 @@ const Playlists: React.FC = () => {
   if (selectedPlaylist) {
     return (
       <div className="playlist-container">
-        <button onClick={() => setSelectedPlaylist(null)} className="back-button">
+        <button
+          onClick={() => setSelectedPlaylist(null)}
+          className="back-button"
+        >
           ← Back to Playlists
         </button>
 
@@ -75,7 +78,7 @@ const Playlists: React.FC = () => {
             </button>
           </div>
           <ul className="song-list">
-            {selectedPlaylist.songs.map((song: Song, index: number) => (
+            {selectedPlaylist.songs.map((song, index) => (
               <li key={song._id} className="song-item">
                 <div className="song-controls">
                   <h4 className="playlist-songtitle-artist">
@@ -116,7 +119,7 @@ const Playlists: React.FC = () => {
     <div className="playlist-container">
       <h2 className="playlist-title">Your Playlists</h2>
       <ul className="playlist-list">
-        {playlists.map((p: Playlist) => (
+        {playlists.map((p) => (
           <li key={p.name}>
             <button
               onClick={() => setSelectedPlaylist(p)}
