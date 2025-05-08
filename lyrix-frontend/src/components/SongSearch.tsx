@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { searchSongs } from '../../src/services/api';
 import { addSongToPlaylist } from '../../src/utils/playlistStorage';
-import { Song } from '../types';
+import { Song } from '../../src/types';
 
 interface SongSearchProps {
   handleSearch?: (query: string) => void;
