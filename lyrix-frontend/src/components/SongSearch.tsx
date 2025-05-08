@@ -9,10 +9,10 @@ interface SongSearchProps {
 }
 
   const SongSearch: React.FC<SongSearchProps> = ({ searchResults }) => {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Song[]>([]);
-  const [playlistName, setPlaylistName] = useState('');
-  const [noResults, setNoResults] = useState(false);
+    const [query, setQuery] = useState('');
+    const [results, setResults] = useState<Song[]>([]);
+    const [playlistName, setPlaylistName] = useState('');
+    const [noResults, setNoResults] = useState(false);
 
 
   // If searchResults are passed in (for tests), use them instead

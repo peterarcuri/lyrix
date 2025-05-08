@@ -4,7 +4,7 @@
     "module": "ESNext",
     "types": ["jest", "@testing-library/jest-dom"],    
     "moduleResolution": "Node",
-    "jsx": "react-jsx",
+    "jsx": "react",
     "outDir": "dist",
     "rootDir": "src",
     "allowJs": false,
@@ -14,5 +14,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src"],
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["node_modules"]
 }
