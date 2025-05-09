@@ -609,12 +609,12 @@ pre.song-lyrics {
     display: flex;
     justify-content: center;
     margin-bottom: 1rem;
-    height: auto;
+    height: 40vh;
   }
 
   .lyrix-logo {
     width: 100%;
-    height: 30vh;
+    height: 50vh;
     margin: 0;
   }
 
