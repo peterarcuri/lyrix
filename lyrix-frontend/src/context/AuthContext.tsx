@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState } from 'react';
-import { Playlist } from '../types'; // Adjust the import path if needed
 
 interface AuthContextProps {
   token: string | null;
@@ -20,7 +19,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('token', token);
     localStorage.setItem('email', email);
 
-    // ✅ Fetch user's saved playlists from backend
     try {
       const res = await fetch('/api/playlists', {
         headers: {
@@ -29,18 +27,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (res.ok) {
-        const playlists: Playlist[] = await res.json();
+        const playlists = await res.json();
         localStorage.setItem('lyrix_playlists', JSON.stringify(playlists));
       } else {
-        console.warn('Failed to load playlists on login');
+        console.warn('Failed to fetch playlists on login');
       }
     } catch (err) {
-      console.error('Error fetching playlists:', err);
+      console.error('Error fetching playlists on login:', err);
     }
   };
 
   const logout = async () => {
-    // ✅ Save playlists to backend before logging out
     const playlists = localStorage.getItem('lyrix_playlists');
 
     if (token && playlists) {
@@ -51,14 +48,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: playlists, // plain JSON array
+          body: playlists, // this is already a JSON string
         });
       } catch (err) {
         console.error('Error saving playlists before logout:', err);
       }
     }
 
-    // Clear auth state
     setToken(null);
     setEmail(null);
     localStorage.removeItem('token');
