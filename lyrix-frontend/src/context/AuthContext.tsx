@@ -1,36 +1,69 @@
 import React, { createContext, useContext, useState } from 'react';
+import { Playlist } from '../types'; // Adjust the import path if needed
 
 interface AuthContextProps {
   token: string | null;
   email: string | null;
-  login: (token: string, email: string) => void;
-  logout: () => void;
+  login: (token: string, email: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem('token')
-  );
-  const [email, setEmail] = useState<string | null>(
-    localStorage.getItem('email')
-  );
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [email, setEmail] = useState<string | null>(localStorage.getItem('email'));
 
-  const login = (token: string, email: string) => {
+  const login = async (token: string, email: string) => {
     setToken(token);
     setEmail(email);
     localStorage.setItem('token', token);
     localStorage.setItem('email', email);
+
+    // ✅ Fetch user's saved playlists from backend
+    try {
+      const res = await fetch('/api/playlists', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        const playlists: Playlist[] = await res.json();
+        localStorage.setItem('lyrix_playlists', JSON.stringify(playlists));
+      } else {
+        console.warn('Failed to load playlists on login');
+      }
+    } catch (err) {
+      console.error('Error fetching playlists:', err);
+    }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    // ✅ Save playlists to backend before logging out
+    const playlists = localStorage.getItem('lyrix_playlists');
+
+    if (token && playlists) {
+      try {
+        await fetch('/api/playlists', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: playlists, // plain JSON array
+        });
+      } catch (err) {
+        console.error('Error saving playlists before logout:', err);
+      }
+    }
+
+    // Clear auth state
     setToken(null);
     setEmail(null);
     localStorage.removeItem('token');
     localStorage.removeItem('email');
+    localStorage.removeItem('lyrix_playlists');
   };
 
   return (
