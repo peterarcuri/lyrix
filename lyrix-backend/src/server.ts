@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';  
 import authRoutes from './routes/authRoutes';
 import songRoutes from './routes/songRoutes';
+import playlistRoutes from './routes/playlistRoutes';
 
 
 dotenv.config();
@@ -31,6 +32,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/songs', songRoutes);
+app.use('/api/v1/playlists', playlistRoutes);
 
 
 
