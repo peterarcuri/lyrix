@@ -3,6 +3,7 @@ import Playlist from '../models/Playlist';
 
 // GET /api/playlists
 export async function getUserPlaylists(req: Request, res: Response) {
+  console.log('Fetching playlists for user:', req.userId);
   const playlists = await Playlist.find({ userId: req.userId });
   res.json(playlists);
 }
