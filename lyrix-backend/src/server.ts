@@ -19,8 +19,15 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = ['https://lyrix-one.vercel.app'];
 
 app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
+  origin: function (origin, callback) {
+    const allowedOrigins = ['https://lyrix-one.vercel.app'];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
 }));
 
 
