@@ -41,28 +41,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     const playlists = localStorage.getItem('lyrix_playlists');
-
+    const API_BASE = import.meta.env.VITE_API_BASE_URL;
+  
     if (token && playlists) {
       try {
-        await fetch('/api/playlists', {
+        await fetch(`${API_BASE}/api/v1/playlists`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: playlists, // this is already a JSON string
+          body: playlists,
         });
       } catch (err) {
         console.error('Error saving playlists before logout:', err);
       }
     }
-
+  
     setToken(null);
     setEmail(null);
     localStorage.removeItem('token');
     localStorage.removeItem('email');
     localStorage.removeItem('lyrix_playlists');
   };
+  
 
   return (
     <AuthContext.Provider value={{ token, email, login, logout }}>
