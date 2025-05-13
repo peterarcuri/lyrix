@@ -13,14 +13,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [email, setEmail] = useState<string | null>(localStorage.getItem('email'));
 
-  const login = async (token: string, email: string) => {
-    setToken(token);
+  const login = async (authToken: string, email: string) => {
+    setToken(authToken);
     setEmail(email);
-    localStorage.setItem('token', token);
+    localStorage.setItem('token', authToken);
     localStorage.setItem('email', email);
 
     try {
-      const res = await fetch('/api/playlists', {
+      const res = await fetch('/api/v1/playlists', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
