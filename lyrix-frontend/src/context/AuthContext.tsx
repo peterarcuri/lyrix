@@ -19,8 +19,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('token', authToken);
     localStorage.setItem('email', email);
 
+    const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
     try {
-      const res = await fetch('/api/v1/playlists', {
+      const res = await fetch(`${API_BASE}/api/v1/playlists`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
