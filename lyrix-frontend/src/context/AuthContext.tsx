@@ -22,6 +22,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
     try {
+      console.log('🔍 VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
+
       const res = await fetch(`${API_BASE}/api/v1/playlists`, {
         method: 'GET', 
         headers: {
