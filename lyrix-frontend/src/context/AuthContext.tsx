@@ -51,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: playlists,
+          body: JSON.stringify(JSON.parse(playlists || '[]')),
         });
       } catch (err) {
         console.error('Error saving playlists before logout:', err);

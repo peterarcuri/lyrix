@@ -14,3 +14,4 @@ export interface SongSearchProps {
   handleSearch?: (query: string) => void;
   searchResults?: Song[];
 }
+
