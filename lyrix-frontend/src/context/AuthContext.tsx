@@ -56,7 +56,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Ensure playlists are not empty before attempting to save
         if (parsedPlaylists.length > 0) {
-          console.log('📤 Sending playlists to backend...');
+          console.log('🌐 Logout using API_BASE:', API_BASE);
+
 
           
           await fetch(`${API_BASE}/api/v1/playlists`, {
