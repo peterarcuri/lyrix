@@ -44,23 +44,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     console.log('🔒 logout() called');
-
+  
     const playlists = localStorage.getItem('lyrix_playlists');
     console.log('📦 Playlists from localStorage:', playlists);
-
+  
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
-    
+  
     if (token && playlists) {
       try {
         const parsedPlaylists = JSON.parse(playlists || '[]');
-        
-        // Ensure playlists are not empty before attempting to save
+  
         if (parsedPlaylists.length > 0) {
           console.log('🌐 Logout using API_BASE:', API_BASE);
-
-
-          
-          await fetch(`${API_BASE}/api/v1/playlists`, {
+  
+          // ❗️Important: await this and don't clear localStorage too early
+          const res = await fetch(`${API_BASE}/api/v1/playlists`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -68,6 +66,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             },
             body: JSON.stringify(parsedPlaylists),
           });
+  
+          console.log('✅ Playlist save response:', res.status);
+  
+          if (!res.ok) {
+            console.warn('❌ Failed to save playlists on logout');
+          }
         } else {
           console.log('No playlists to save before logout');
         }
@@ -75,13 +79,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Error saving playlists before logout:', err);
       }
     }
-    
+  
+    // ✅ Only clear & navigate AFTER async POST completes
     setToken(null);
     setEmail(null);
     localStorage.removeItem('token');
     localStorage.removeItem('email');
     localStorage.removeItem('lyrix_playlists');
+  
+    // Optional: use router navigation or window.location to redirect after logout
+    window.location.href = '/';
   };
+  
   
   
 
