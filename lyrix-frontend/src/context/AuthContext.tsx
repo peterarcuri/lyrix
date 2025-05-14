@@ -23,6 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       const res = await fetch(`${API_BASE}/api/v1/playlists`, {
+        method: 'GET', 
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
