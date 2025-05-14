@@ -41,7 +41,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
+    console.log('🔒 logout() called');
+
     const playlists = localStorage.getItem('lyrix_playlists');
+    console.log('📦 Playlists from localStorage:', playlists);
+
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
     
     if (token && playlists) {
@@ -50,7 +54,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Ensure playlists are not empty before attempting to save
         if (parsedPlaylists.length > 0) {
-          console.log('Saving playlists before logout:', parsedPlaylists); // Log playlists to confirm
+          console.log('📤 Sending playlists to backend...');
+
+          
           await fetch(`${API_BASE}/api/v1/playlists`, {
             method: 'POST',
             headers: {
