@@ -20,6 +20,8 @@ export async function saveUserPlaylists(req: AuthenticatedRequest, res: Response
 
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
+    console.log('Received playlists for user', userId, playlists); 
+
     if (!Array.isArray(playlists)) {
       return res.status(400).json({ message: 'Expected an array of playlists' });
     }
