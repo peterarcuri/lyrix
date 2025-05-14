@@ -18,6 +18,8 @@ const PORT = process.env.PORT || 5000;
 
 const allowedOrigins = ['https://lyrix-one.vercel.app'];
 
+app.use(express.json());
+
 app.use(cors({
   origin: function (origin, callback) {
     const allowedOrigins = ['https://lyrix-one.vercel.app'];
@@ -31,7 +33,7 @@ app.use(cors({
 }));
 
 
-app.use(express.json());
+
 
 app.get('/', (req, res) => {
   res.send('Lyrix backend says hello! 😁');
