@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { searchSongs } from '../services/api';
 import { addSongToPlaylist } from '../utils/playlistStorage';
 import { Song } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 interface SongSearchProps {
   handleSearch?: (query: string) => void;
@@ -13,6 +14,7 @@ const SongSearch: React.FC<SongSearchProps> = ({ searchResults }) => {
   const [results, setResults] = useState<Song[]>([]);
   const [playlistName, setPlaylistName] = useState('');
   const [noResults, setNoResults] = useState(false);
+  const { playlists, setPlaylists } = useAuth();
 
 
   // If searchResults are passed in (for tests), use them instead
@@ -47,7 +49,15 @@ const SongSearch: React.FC<SongSearchProps> = ({ searchResults }) => {
   
   const handleSave = (song: Song) => {
     if (!playlistName) return alert('Enter a playlist name first');
-    addSongToPlaylist(playlistName, song);
+    
+    console.log('Saving song:', song);
+    console.log('To playlist:', playlistName);
+    
+    const updatedPlaylists = addSongToPlaylist(playlistName, song);
+    console.log('Updated playlists:', updatedPlaylists);
+    
+    setPlaylists(updatedPlaylists); // Update the playlists in the context
+    
     alert(`Saved to "${playlistName}"`);
   };
 

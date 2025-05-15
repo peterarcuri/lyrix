@@ -21,6 +21,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Helper function to update playlists in both state and localStorage
   const setPlaylists = (newPlaylists: any[]) => {
+    console.log('Setting new playlists:', newPlaylists);
     setPlaylistsState(newPlaylists);
     localStorage.setItem('lyrix_playlists', JSON.stringify(newPlaylists));
   };
