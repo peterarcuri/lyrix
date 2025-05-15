@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext'; // Update path if needed
 import { Playlist } from '../types';
 
@@ -6,11 +6,17 @@ const Playlists: React.FC = () => {
   const { playlists, setPlaylists } = useAuth();
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
 
+  // Debug log when component mounts or playlists change
+  useEffect(() => {
+    console.log('🎵 Playlists component - current playlists:', playlists);
+  }, [playlists]);
+
   // If playlists is null, use an empty array
   const playlistsData = playlists || [];
 
   const handleRemove = (playlistName: string, songId: string) => {
     if (!playlistsData) return;
+    console.log(`🗑️ Removing song ${songId} from playlist ${playlistName}`);
     
     // Find the playlist
     const playlist = playlistsData.find(p => p.name === playlistName);
@@ -27,6 +33,8 @@ const Playlists: React.FC = () => {
       p.name === playlistName ? updatedPlaylist : p
     );
     
+    console.log('📝 Updated playlists after song removal:', updatedPlaylists);
+    
     // Update context (and localStorage)
     setPlaylists(updatedPlaylists);
     
@@ -38,9 +46,12 @@ const Playlists: React.FC = () => {
 
   const handleRemovePlaylist = (playlistName: string) => {
     if (!playlistsData) return;
+    console.log(`🗑️ Removing entire playlist: ${playlistName}`);
     
     // Filter out the playlist
     const updatedPlaylists = playlistsData.filter(p => p.name !== playlistName);
+    
+    console.log('📝 Updated playlists after playlist removal:', updatedPlaylists);
     
     // Update context (and localStorage)
     setPlaylists(updatedPlaylists);
@@ -49,6 +60,7 @@ const Playlists: React.FC = () => {
 
   const moveSong = (index: number, direction: 'up' | 'down') => {
     if (!selectedPlaylist || !playlistsData) return;
+    console.log(`🔄 Moving song at index ${index} ${direction}`);
 
     const updatedSongs = [...selectedPlaylist.songs];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
@@ -70,6 +82,8 @@ const Playlists: React.FC = () => {
       p.name === selectedPlaylist.name ? updatedPlaylist : p
     );
 
+    console.log('📝 Updated playlists after song reordering:', updatedPlaylists);
+    
     // Update context (and localStorage)
     setPlaylists(updatedPlaylists);
     setSelectedPlaylist(updatedPlaylist);
@@ -96,37 +110,41 @@ const Playlists: React.FC = () => {
             </button>
           </div>
           <ul className="song-list">
-            {selectedPlaylist.songs.map((song, index) => (
-              <li key={song._id} className="song-item">
-                <div className="song-controls">
-                  <h4 className="playlist-songtitle-artist">
-                    {song.title} - {song.artist}
-                  </h4>
-                  <div className="song-buttons">
-                    <button
-                      onClick={() => moveSong(index, 'up')}
-                      disabled={index === 0}
-                    >
-                      ↑
-                    </button>
-                    <button
-                      onClick={() => moveSong(index, 'down')}
-                      disabled={index === selectedPlaylist.songs.length - 1}
-                    >
-                      ↓
-                    </button>
-                    <button
-                      onClick={() =>
-                        handleRemove(selectedPlaylist.name, song._id)
-                      }
-                    >
-                      Remove
-                    </button>
+            {selectedPlaylist.songs.length > 0 ? (
+              selectedPlaylist.songs.map((song, index) => (
+                <li key={song._id} className="song-item">
+                  <div className="song-controls">
+                    <h4 className="playlist-songtitle-artist">
+                      {song.title} - {song.artist}
+                    </h4>
+                    <div className="song-buttons">
+                      <button
+                        onClick={() => moveSong(index, 'up')}
+                        disabled={index === 0}
+                      >
+                        ↑
+                      </button>
+                      <button
+                        onClick={() => moveSong(index, 'down')}
+                        disabled={index === selectedPlaylist.songs.length - 1}
+                      >
+                        ↓
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleRemove(selectedPlaylist.name, song._id)
+                        }
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <pre className="song-lyrics">{song.songLyrics}</pre>
-              </li>
-            ))}
+                  <pre className="song-lyrics">{song.songLyrics}</pre>
+                </li>
+              ))
+            ) : (
+              <li>No songs in this playlist</li>
+            )}
           </ul>
         </div>
       </div>
@@ -144,7 +162,7 @@ const Playlists: React.FC = () => {
                 onClick={() => setSelectedPlaylist(p)}
                 className="playlist-button"
               >
-                {p.name}
+                {p.name} ({p.songs?.length || 0} songs)
               </button>
             </li>
           ))
@@ -152,6 +170,14 @@ const Playlists: React.FC = () => {
           <li>No playlists found</li>
         )}
       </ul>
+      {/* Debug info - remove in production */}
+      <div style={{ marginTop: '20px', fontSize: '12px', color: '#666' }}>
+        <p>Debug info:</p>
+        <pre>{JSON.stringify({ 
+          hasPlaylists: !!playlists, 
+          playlistCount: playlistsData.length
+        }, null, 2)}</pre>
+      </div>
     </div>
   );
 };

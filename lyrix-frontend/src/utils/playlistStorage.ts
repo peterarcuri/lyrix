@@ -1,40 +1,130 @@
-import { Playlist, Song } from '../types';
-import React from 'react';
+import { Playlist } from '../types';
+import { v4 as uuidv4 } from "uuid";
 
+/**
+ * Get playlists from localStorage
+ */
+export const getPlaylists = (): Playlist[] => {
+  try {
+    const playlists = localStorage.getItem('lyrix_playlists');
+    if (!playlists) return [];
+    return JSON.parse(playlists);
+  } catch (error) {
+    console.error('Error getting playlists from localStorage:', error);
+    return [];
+  }
+};
 
-const STORAGE_KEY = 'lyrix_playlists';
+/**
+ * Save playlists to localStorage
+ */
+export const savePlaylists = (playlists: Playlist[]): void => {
+  try {
+    localStorage.setItem('lyrix_playlists', JSON.stringify(playlists));
+    console.log('✅ Playlists saved to localStorage:', playlists);
+  } catch (error) {
+    console.error('Error saving playlists to localStorage:', error);
+  }
+};
 
-export function getPlaylists(): Playlist[] {
-  return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-}
-
-export function savePlaylists(playlists: Playlist[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(playlists));
-}
-
-export function addSongToPlaylist(playlistName: string, song: Song) {
+/**
+ * Add a new playlist
+ */
+export const addPlaylist = (name: string): Playlist[] => {
   const playlists = getPlaylists();
-  let playlist = playlists.find((p) => p.name === playlistName);
-  if (!playlist) {
-    playlist = { name: playlistName, songs: [] };
-    playlists.push(playlist);
+  
+  // Check if playlist with this name already exists
+  if (playlists.some(p => p.name === name)) {
+    console.warn(`Playlist "${name}" already exists`);
+    return playlists;
   }
-  if (!playlist.songs.find((s) => s._id === song._id)) {
-    playlist.songs.push(song);
+  
+  const newPlaylist: Playlist = {
+    name,
+    songs: [],
+  };
+  
+  const updatedPlaylists = [...playlists, newPlaylist];
+  savePlaylists(updatedPlaylists);
+  return updatedPlaylists;
+};
+
+/**
+ * Add a song to a playlist
+ */
+export const addSongToPlaylist = (
+  playlistName: string, 
+  song: { _id: string; title: string; artist: string; songLyrics: string; }
+): Playlist[] => {
+  const playlists = getPlaylists();
+  const playlistIndex = playlists.findIndex(p => p.name === playlistName);
+  
+  if (playlistIndex === -1) {
+    console.warn(`Playlist "${playlistName}" not found`);
+    return playlists;
   }
-  savePlaylists(playlists);
-}
+  
+  // Check if song already exists in playlist
+  const songExists = playlists[playlistIndex].songs.some(s => s._id === song._id);
+  if (songExists) {
+    console.warn(`Song "${song.title}" already exists in playlist "${playlistName}"`);
+    return playlists;
+  }
+  
+  // Ensure song has a valid _id
+  const songWithId = {
+    ...song,
+    _id: song._id || uuidv4(),
+  };
+  
+  const updatedPlaylist = {
+    ...playlists[playlistIndex],
+    songs: [...playlists[playlistIndex].songs, songWithId],
+  };
+  
+  const updatedPlaylists = [
+    ...playlists.slice(0, playlistIndex),
+    updatedPlaylist,
+    ...playlists.slice(playlistIndex + 1),
+  ];
+  
+  savePlaylists(updatedPlaylists);
+  return updatedPlaylists;
+};
 
-export function removeSongFromPlaylist(playlistName: string, songId: string) {
-  const playlists = getPlaylists().map((p) =>
-    p.name === playlistName
-      ? { ...p, songs: p.songs.filter((song) => song._id !== songId) }
-      : p
-  );
-  savePlaylists(playlists);
-}
+/**
+ * Remove a song from a playlist
+ */
+export const removeSongFromPlaylist = (playlistName: string, songId: string): Playlist[] => {
+  const playlists = getPlaylists();
+  const playlistIndex = playlists.findIndex(p => p.name === playlistName);
+  
+  if (playlistIndex === -1) {
+    console.warn(`Playlist "${playlistName}" not found`);
+    return playlists;
+  }
+  
+  const updatedPlaylist = {
+    ...playlists[playlistIndex],
+    songs: playlists[playlistIndex].songs.filter(s => s._id !== songId),
+  };
+  
+  const updatedPlaylists = [
+    ...playlists.slice(0, playlistIndex),
+    updatedPlaylist,
+    ...playlists.slice(playlistIndex + 1),
+  ];
+  
+  savePlaylists(updatedPlaylists);
+  return updatedPlaylists;
+};
 
-export function removePlaylist(playlistName: string) {
-  const playlists = getPlaylists().filter((p) => p.name !== playlistName);
-  savePlaylists(playlists);
-}
+/**
+ * Remove an entire playlist
+ */
+export const removePlaylist = (playlistName: string): Playlist[] => {
+  const playlists = getPlaylists();
+  const updatedPlaylists = playlists.filter(p => p.name !== playlistName);
+  savePlaylists(updatedPlaylists);
+  return updatedPlaylists;
+};
