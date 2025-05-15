@@ -85,7 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(playlists),
+          body: JSON.stringify({playlists}),
         });
         
         console.log('✅ Playlist save response:', res.status);
