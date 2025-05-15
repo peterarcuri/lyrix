@@ -170,14 +170,7 @@ const Playlists: React.FC = () => {
           <li>No playlists found</li>
         )}
       </ul>
-      {/* Debug info - remove in production */}
-      <div style={{ marginTop: '20px', fontSize: '12px', color: '#666' }}>
-        <p>Debug info:</p>
-        <pre>{JSON.stringify({ 
-          hasPlaylists: !!playlists, 
-          playlistCount: playlistsData.length
-        }, null, 2)}</pre>
-      </div>
+
     </div>
   );
 };

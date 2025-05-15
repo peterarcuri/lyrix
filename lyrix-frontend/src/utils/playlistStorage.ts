@@ -53,28 +53,29 @@ export const addPlaylist = (name: string): Playlist[] => {
  * Add a song to a playlist
  */
 export const addSongToPlaylist = (
-  playlistName: string, 
+  playlistName: string,
   song: { _id: string; title: string; artist: string; songLyrics: string; }
 ): Playlist[] => {
   const playlists = getPlaylists();
   const playlistIndex = playlists.findIndex(p => p.name === playlistName);
   
   if (playlistIndex === -1) {
-    console.warn(`Playlist "${playlistName}" not found`);
+    console.error(`Playlist "${playlistName}" not found`);
     return playlists;
   }
   
   // Check if song already exists in playlist
   const songExists = playlists[playlistIndex].songs.some(s => s._id === song._id);
+  
   if (songExists) {
     console.warn(`Song "${song.title}" already exists in playlist "${playlistName}"`);
     return playlists;
   }
   
-  // Ensure song has a valid _id
+  // Ensure song has a valid _id (use _id consistently, not id)
   const songWithId = {
     ...song,
-    _id: song._id || uuidv4(),
+    _id: song._id || uuidv4(),  // Use _id consistently
   };
   
   const updatedPlaylist = {
