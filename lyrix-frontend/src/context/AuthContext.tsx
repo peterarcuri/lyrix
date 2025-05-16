@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import { savePlaylists } from '../utils/playlistStorage';
 
 interface AuthContextProps {
   token: string | null;
@@ -34,6 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.ok) {
         const playlists = await res.json();
         localStorage.setItem('lyrix_playlists', JSON.stringify(playlists));
+        savePlaylists(playlists);
       } else {
         console.warn('Failed to fetch playlists on login');
       }
