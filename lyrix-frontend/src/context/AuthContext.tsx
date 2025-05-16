@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useState } from 'react';
-import { savePlaylists } from '../utils/playlistStorage';
-import { usePlaylist } from '../../src/context/PlaylistContext';
 
 interface AuthContextProps {
   token: string | null;
@@ -36,7 +34,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.ok) {
         const playlists = await res.json();
         localStorage.setItem('lyrix_playlists', JSON.stringify(playlists));
-        savePlaylists(playlists);
       } else {
         console.warn('Failed to fetch playlists on login');
       }
@@ -48,23 +45,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     console.log('🔒 logout() called');
   
-    const { playlists } = usePlaylist();
+    const playlists = localStorage.getItem('lyrix_playlists');
     console.log('📦 Playlists from localStorage:', playlists);
   
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
   
     if (token && playlists) {
       try {
-        if (playlists.length > 0) {
+        const parsedPlaylists = JSON.parse(playlists || '[]');
+  
+        if (parsedPlaylists.length > 0) {
           console.log('🌐 Logout using API_BASE:', API_BASE);
   
+          // ❗️Important: await this and don't clear localStorage too early
           const res = await fetch(`${API_BASE}/api/v1/playlists`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify(playlists),
+            body: JSON.stringify(parsedPlaylists),
           });
   
           console.log('✅ Playlist save response:', res.status);
@@ -80,12 +80,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
   
+    // ✅ Only clear & navigate AFTER async POST completes
     setToken(null);
     setEmail(null);
     localStorage.removeItem('token');
     localStorage.removeItem('email');
     localStorage.removeItem('lyrix_playlists');
   
+    // Optional: use router navigation or window.location to redirect after logout
     window.location.href = '/';
   };
   

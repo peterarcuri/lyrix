@@ -6,22 +6,20 @@ import Home from './pages/Home';
 import { AuthProvider } from './context/AuthContext';
 import  Playlists  from './pages/Playlists';
 import Navbar from './components/Navbar';
-import { PlaylistProvider } from './context/PlaylistContext';
+
 
 
 const App = () => {
   return (
     <Router>
-      <AuthProvider>
-      <PlaylistProvider>      
+      <AuthProvider>      
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/playlists" element={<Playlists />} />
-        </Routes>      
-      </PlaylistProvider>
+        </Routes>          
       </AuthProvider>
 
     </Router>
