@@ -12,17 +12,17 @@ import { PlaylistProvider } from './context/PlaylistContext';
 const App = () => {
   return (
     <Router>
-      <PlaylistProvider>
       <AuthProvider>
+      <PlaylistProvider>      
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/playlists" element={<Playlists />} />
-        </Routes>
-      </AuthProvider>
+        </Routes>      
       </PlaylistProvider>
+      </AuthProvider>
 
     </Router>
   );
