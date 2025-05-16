@@ -6,9 +6,10 @@ import {
   savePlaylists,
 } from '../../src/utils/playlistStorage';
 import { Playlist } from '../types';
+import { usePlaylist } from '../../src/context/PlaylistContext';
 
 const Playlists: React.FC = () => {
-  const [playlists, setPlaylists] = useState<Playlist[]>(getPlaylists());
+  const { playlists, setPlaylists } = usePlaylist();
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(
     null
   );
