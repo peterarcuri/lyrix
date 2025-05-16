@@ -19,7 +19,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return storedPlaylists ? JSON.parse(storedPlaylists) : null;
   });
 
+  useEffect(() => {
+    console.log('Playlists state updated:', playlists);
+  }, [playlists]);
+
   const setPlaylists = (newPlaylists: any[]) => {
+    console.log('Setting new playlists:', newPlaylists);
     setPlaylistsState(newPlaylists);
     localStorage.setItem('lyrix_playlists', JSON.stringify(newPlaylists));
   };
@@ -61,12 +66,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     console.log('🔒 logout() called');
     console.log('📦 Playlists from state:', playlists);
+    
+    // Double-check localStorage for playlists
+    const storedPlaylists = localStorage.getItem('lyrix_playlists');
+    console.log('📦 Playlists from localStorage:', storedPlaylists);
+    
+    const playlistsToSave = playlists && playlists.length > 0 ? playlists : 
+                            (storedPlaylists ? JSON.parse(storedPlaylists) : null);
   
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
   
-    if (token && playlists && playlists.length > 0) {
+    if (token && playlistsToSave && playlistsToSave.length > 0) {
       try {
         console.log('🌐 Logout using API_BASE:', API_BASE);
+        console.log('Saving playlists:', playlistsToSave);
         
         const res = await fetch(`${API_BASE}/api/v1/playlists`, {
           method: 'POST',
@@ -74,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(playlists),
+          body: JSON.stringify(playlistsToSave),
         });
   
         console.log('✅ Playlist save response:', res.status);
