@@ -13,8 +13,6 @@ interface AuthContextProps {
   logout: () => Promise<void>;
   setPlaylists: (playlists: Playlist[]) => void;
   addPlaylist: (playlist: Playlist) => void;
-  removePlaylist: (playlistName: string) => void;
-  updatePlaylist: (updatedPlaylist: Playlist) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -29,29 +27,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     console.log('Playlists state updated:', playlists);
-    localStorage.setItem('lyrix_playlists', JSON.stringify(playlists));
   }, [playlists]);
 
   const setPlaylists = (newPlaylists: Playlist[]) => {
     console.log('Setting new playlists:', newPlaylists);
     setPlaylistsState(newPlaylists);
+    localStorage.setItem('lyrix_playlists', JSON.stringify(newPlaylists));
   };
 
   const addPlaylist = (playlist: Playlist) => {
-    console.log('Adding new playlist:', playlist);
-    setPlaylistsState(prevPlaylists => [...prevPlaylists, playlist]);
-  };
-
-  const removePlaylist = (playlistName: string) => {
-    console.log('Removing playlist:', playlistName);
-    setPlaylistsState(prevPlaylists => prevPlaylists.filter(p => p.name !== playlistName));
-  };
-
-  const updatePlaylist = (updatedPlaylist: Playlist) => {
-    console.log('Updating playlist:', updatedPlaylist);
-    setPlaylistsState(prevPlaylists => 
-      prevPlaylists.map(p => p.name === updatedPlaylist.name ? updatedPlaylist : p)
-    );
+    setPlaylists([...playlists, playlist]);
   };
 
   const login = async (authToken: string, userEmail: string) => {
@@ -74,43 +59,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
       if (res.ok) {
         const fetchedPlaylists = await res.json();
-        console.log('Fetched playlists:', fetchedPlaylists);
-  
-        // Get existing playlists from local storage
-        const existingPlaylists = JSON.parse(localStorage.getItem('lyrix_playlists') || '[]');
-  
-        let newPlaylists: Playlist[];
         if (Array.isArray(fetchedPlaylists)) {
-          newPlaylists = fetchedPlaylists;
-        } else if (fetchedPlaylists && typeof fetchedPlaylists === 'object') {
-          newPlaylists = [fetchedPlaylists];
+          setPlaylists(fetchedPlaylists);
         } else {
-          console.warn('Unexpected playlist data format:', fetchedPlaylists);
-          newPlaylists = [];
+          setPlaylists([fetchedPlaylists]);
         }
-  
-        // Merge fetched playlists with existing playlists
-        const mergedPlaylists = [...existingPlaylists, ...newPlaylists];
-  
-        // Remove duplicates based on playlist name
-        const uniquePlaylists = mergedPlaylists.reduce((acc: Playlist[], current) => {
-          const x = acc.find(item => item.name === current.name);
-          if (!x) {
-            return acc.concat([current]);
-          } else {
-            return acc;
-          }
-        }, []);
-  
-        setPlaylists(uniquePlaylists);
-        console.log('✅ Playlists loaded on login:', uniquePlaylists);
+        console.log('✅ Playlists loaded on login:', fetchedPlaylists);
       } else {
         console.warn('Failed to fetch playlists on login');
-        setPlaylists([]);
+        setPlaylistsState([]);
+        localStorage.removeItem('lyrix_playlists');
       }
     } catch (err) {
       console.error('Error fetching playlists on login:', err);
-      setPlaylists([]);
+      setPlaylistsState([]);
+      localStorage.removeItem('lyrix_playlists');
     }
   };
   
@@ -157,17 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      token, 
-      email, 
-      playlists, 
-      login, 
-      logout, 
-      setPlaylists, 
-      addPlaylist,
-      removePlaylist,
-      updatePlaylist
-    }}>
+    <AuthContext.Provider value={{ token, email, playlists, login, logout, setPlaylists, addPlaylist }}>
       {children}
     </AuthContext.Provider>
   );
