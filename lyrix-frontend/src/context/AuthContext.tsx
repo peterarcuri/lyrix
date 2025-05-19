@@ -13,6 +13,8 @@ interface AuthContextProps {
   logout: () => Promise<void>;
   setPlaylists: (playlists: Playlist[]) => void;
   addPlaylist: (playlist: Playlist) => void;
+  removePlaylist: (playlistName: string) => void;
+  updatePlaylist: (updatedPlaylist: Playlist) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -27,16 +29,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     console.log('Playlists state updated:', playlists);
+    localStorage.setItem('lyrix_playlists', JSON.stringify(playlists));
   }, [playlists]);
 
   const setPlaylists = (newPlaylists: Playlist[]) => {
     console.log('Setting new playlists:', newPlaylists);
     setPlaylistsState(newPlaylists);
-    localStorage.setItem('lyrix_playlists', JSON.stringify(newPlaylists));
   };
 
   const addPlaylist = (playlist: Playlist) => {
-    setPlaylists([...playlists, playlist]);
+    console.log('Adding new playlist:', playlist);
+    setPlaylistsState(prevPlaylists => [...prevPlaylists, playlist]);
+  };
+
+  const removePlaylist = (playlistName: string) => {
+    console.log('Removing playlist:', playlistName);
+    setPlaylistsState(prevPlaylists => prevPlaylists.filter(p => p.name !== playlistName));
+  };
+
+  const updatePlaylist = (updatedPlaylist: Playlist) => {
+    console.log('Updating playlist:', updatedPlaylist);
+    setPlaylistsState(prevPlaylists => 
+      prevPlaylists.map(p => p.name === updatedPlaylist.name ? updatedPlaylist : p)
+    );
   };
 
   const login = async (authToken: string, userEmail: string) => {
@@ -59,21 +74,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
       if (res.ok) {
         const fetchedPlaylists = await res.json();
+        console.log('Fetched playlists:', fetchedPlaylists);
         if (Array.isArray(fetchedPlaylists)) {
           setPlaylists(fetchedPlaylists);
-        } else {
+        } else if (fetchedPlaylists && typeof fetchedPlaylists === 'object') {
           setPlaylists([fetchedPlaylists]);
+        } else {
+          console.warn('Unexpected playlist data format:', fetchedPlaylists);
+          setPlaylists([]);
         }
-        console.log('✅ Playlists loaded on login:', fetchedPlaylists);
+        console.log('✅ Playlists loaded on login:', playlists);
       } else {
         console.warn('Failed to fetch playlists on login');
-        setPlaylistsState([]);
-        localStorage.removeItem('lyrix_playlists');
+        setPlaylists([]);
       }
     } catch (err) {
       console.error('Error fetching playlists on login:', err);
-      setPlaylistsState([]);
-      localStorage.removeItem('lyrix_playlists');
+      setPlaylists([]);
     }
   };
   
@@ -120,7 +137,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ token, email, playlists, login, logout, setPlaylists, addPlaylist }}>
+    <AuthContext.Provider value={{ 
+      token, 
+      email, 
+      playlists, 
+      login, 
+      logout, 
+      setPlaylists, 
+      addPlaylist,
+      removePlaylist,
+      updatePlaylist
+    }}>
       {children}
     </AuthContext.Provider>
   );
