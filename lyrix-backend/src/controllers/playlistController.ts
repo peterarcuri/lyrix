@@ -20,13 +20,14 @@ export async function saveUserPlaylists(req: AuthenticatedRequest, res: Response
     await Playlist.deleteMany({ userId });
 
     // Save new playlists
-    const savedPlaylists = await Playlist.insertMany(
-      playlists.map(playlist => ({
+    const savedPlaylists = await Promise.all(playlists.map(async (playlist) => {
+      const newPlaylist = new Playlist({
         ...playlist,
         userId,
         _id: undefined // Ensure we're creating new documents
-      }))
-    );
+      });
+      return await newPlaylist.save();
+    }));
 
     console.log('Saved playlists:', JSON.stringify(savedPlaylists, null, 2));
 
@@ -55,4 +56,3 @@ export async function getUserPlaylists(req: AuthenticatedRequest, res: Response)
     res.status(500).json({ message: 'Failed to fetch playlists' });
   }
 }
-
