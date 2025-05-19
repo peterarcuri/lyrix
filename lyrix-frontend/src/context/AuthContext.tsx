@@ -69,26 +69,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
   
-    if (token) {
+    if (token && playlists && playlists.length > 0) {
       try {
-        console.log('🌐 Logout using API_BASE:', API_BASE);
+        console.log('🌐 Saving playlists on logout');
         
-        // Instead of saving playlists, we'll remove all playlists for the user
-        const res = await fetch(`${API_BASE}/api/v1/playlists/clear`, {
+        const res = await fetch(`${API_BASE}/api/v1/playlists`, {
           method: 'POST',
           headers: {
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
+          body: JSON.stringify(playlists),
         });
   
-        console.log('✅ Playlist clear response:', res.status);
+        console.log('✅ Playlist save response:', res.status);
   
         if (!res.ok) {
-          console.warn('❌ Failed to clear playlists on logout');
+          console.warn('❌ Failed to save playlists on logout');
         }
       } catch (err) {
-        console.error('Error clearing playlists before logout:', err);
+        console.error('Error saving playlists before logout:', err);
       }
+    } else {
+      console.log('No playlists to save before logout');
     }
   
     setToken(null);
