@@ -75,15 +75,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.ok) {
         const fetchedPlaylists = await res.json();
         console.log('Fetched playlists:', fetchedPlaylists);
+  
+        // Get existing playlists from local storage
+        const existingPlaylists = JSON.parse(localStorage.getItem('lyrix_playlists') || '[]');
+  
+        let newPlaylists: Playlist[];
         if (Array.isArray(fetchedPlaylists)) {
-          setPlaylists(fetchedPlaylists);
+          newPlaylists = fetchedPlaylists;
         } else if (fetchedPlaylists && typeof fetchedPlaylists === 'object') {
-          setPlaylists([fetchedPlaylists]);
+          newPlaylists = [fetchedPlaylists];
         } else {
           console.warn('Unexpected playlist data format:', fetchedPlaylists);
-          setPlaylists([]);
+          newPlaylists = [];
         }
-        console.log('✅ Playlists loaded on login:', playlists);
+  
+        // Merge fetched playlists with existing playlists
+        const mergedPlaylists = [...existingPlaylists, ...newPlaylists];
+  
+        // Remove duplicates based on playlist name
+        const uniquePlaylists = mergedPlaylists.reduce((acc: Playlist[], current) => {
+          const x = acc.find(item => item.name === current.name);
+          if (!x) {
+            return acc.concat([current]);
+          } else {
+            return acc;
+          }
+        }, []);
+  
+        setPlaylists(uniquePlaylists);
+        console.log('✅ Playlists loaded on login:', uniquePlaylists);
       } else {
         console.warn('Failed to fetch playlists on login');
         setPlaylists([]);
