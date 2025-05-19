@@ -67,39 +67,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('🔒 logout() called');
     console.log('📦 Playlists from state:', playlists);
     
-    // Double-check localStorage for playlists
-    const storedPlaylists = localStorage.getItem('lyrix_playlists');
-    console.log('📦 Playlists from localStorage:', storedPlaylists);
-    
-    const playlistsToSave = playlists && playlists.length > 0 ? playlists : 
-                            (storedPlaylists ? JSON.parse(storedPlaylists) : null);
-  
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
   
-    if (token && playlistsToSave && playlistsToSave.length > 0) {
+    if (token) {
       try {
         console.log('🌐 Logout using API_BASE:', API_BASE);
-        console.log('Saving playlists:', playlistsToSave);
         
-        const res = await fetch(`${API_BASE}/api/v1/playlists`, {
+        // Instead of saving playlists, we'll remove all playlists for the user
+        const res = await fetch(`${API_BASE}/api/v1/playlists/clear`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(playlistsToSave),
         });
   
-        console.log('✅ Playlist save response:', res.status);
+        console.log('✅ Playlist clear response:', res.status);
   
         if (!res.ok) {
-          console.warn('❌ Failed to save playlists on logout');
+          console.warn('❌ Failed to clear playlists on logout');
         }
       } catch (err) {
-        console.error('Error saving playlists before logout:', err);
+        console.error('Error clearing playlists before logout:', err);
       }
-    } else {
-      console.log('No playlists to save before logout');
     }
   
     setToken(null);
