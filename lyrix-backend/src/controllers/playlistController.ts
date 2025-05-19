@@ -19,15 +19,13 @@ export async function saveUserPlaylists(req: AuthenticatedRequest, res: Response
     // Remove all existing playlists for this user
     await Playlist.deleteMany({ userId });
 
-    // Save new playlists
-    const savedPlaylists = await Promise.all(playlists.map(async (playlist) => {
-      const newPlaylist = new Playlist({
-        ...playlist,
-        userId,
-        _id: undefined // Ensure we're creating new documents
-      });
-      return await newPlaylist.save();
+    // Sanitize and bulk-insert new playlists
+    const sanitizedPlaylists = playlists.map(({ _id, ...rest }) => ({
+      ...rest,
+      userId,
     }));
+
+    const savedPlaylists = await Playlist.insertMany(sanitizedPlaylists);
 
     console.log('Saved playlists:', JSON.stringify(savedPlaylists, null, 2));
 
@@ -37,6 +35,7 @@ export async function saveUserPlaylists(req: AuthenticatedRequest, res: Response
     res.status(500).json({ message: 'Failed to save playlists' });
   }
 }
+
 
 export async function getUserPlaylists(req: AuthenticatedRequest, res: Response) {
   try {
