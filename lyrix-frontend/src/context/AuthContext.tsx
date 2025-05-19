@@ -49,17 +49,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
       if (res.ok) {
         const fetchedPlaylists = await res.json();
-        setPlaylists(fetchedPlaylists);
         console.log('✅ Playlists loaded on login:', fetchedPlaylists);
+        setPlaylists(fetchedPlaylists);
       } else {
         console.warn('Failed to fetch playlists on login');
-        setPlaylistsState(null);
-        localStorage.removeItem('lyrix_playlists');
+        setPlaylistsState([]);
       }
     } catch (err) {
       console.error('Error fetching playlists on login:', err);
-      setPlaylistsState(null);
-      localStorage.removeItem('lyrix_playlists');
+      setPlaylistsState([]);
     }
   };
   
