@@ -7,6 +7,7 @@ interface AuthContextProps {
   login: (token: string, email: string) => Promise<void>;
   logout: () => Promise<void>;
   setPlaylists: (playlists: any[]) => void;
+  addPlaylist: (newPlaylist: any) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -28,6 +29,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setPlaylistsState(newPlaylists);
     localStorage.setItem('lyrix_playlists', JSON.stringify(newPlaylists));
   };
+
+  const addPlaylist = (newPlaylist: any) => {
+    const updated = [...(playlists || []), newPlaylist];
+    setPlaylists(updated);
+  };
+  
 
   const login = async (authToken: string, userEmail: string) => {
     setToken(authToken);
@@ -103,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ token, email, playlists, login, logout, setPlaylists }}>
+    <AuthContext.Provider value={{ token, email, playlists, login, logout, setPlaylists, addPlaylist }}>
       {children}
     </AuthContext.Provider>
   );
