@@ -47,3 +47,22 @@ export async function getUserPlaylists(req: AuthenticatedRequest, res: Response)
     res.status(500).json({ message: 'Failed to fetch playlists' });
   }
 }
+
+export async function clearUserPlaylists(req: AuthenticatedRequest, res: Response) {
+  try {
+    const userId = req.userId;
+
+    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+    console.log('Clearing playlists for user', userId);
+
+    const result = await Playlist.deleteMany({ userId });
+
+    console.log('Cleared playlists:', result);
+
+    res.status(200).json({ message: 'All playlists cleared successfully' });
+  } catch (err) {
+    console.error('Error clearing playlists:', err);
+    res.status(500).json({ message: 'Failed to clear playlists' });
+  }
+}
