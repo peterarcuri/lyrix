@@ -1,12 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+interface Playlist {
+  name: string;
+  songs: any[];
+}
+
 interface AuthContextProps {
   token: string | null;
   email: string | null;
-  playlists: any[] | null;
+  playlists: Playlist[];
   login: (token: string, email: string) => Promise<void>;
   logout: () => Promise<void>;
-  setPlaylists: (playlists: any[]) => void;
+  setPlaylists: (playlists: Playlist[]) => void;
+  addPlaylist: (playlist: Playlist) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -14,19 +20,23 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [email, setEmail] = useState<string | null>(localStorage.getItem('email'));
-  const [playlists, setPlaylistsState] = useState<any[] | null>(() => {
+  const [playlists, setPlaylistsState] = useState<Playlist[]>(() => {
     const storedPlaylists = localStorage.getItem('lyrix_playlists');
-    return storedPlaylists ? JSON.parse(storedPlaylists) : null;
+    return storedPlaylists ? JSON.parse(storedPlaylists) : [];
   });
 
   useEffect(() => {
     console.log('Playlists state updated:', playlists);
   }, [playlists]);
 
-  const setPlaylists = (newPlaylists: any[]) => {
+  const setPlaylists = (newPlaylists: Playlist[]) => {
     console.log('Setting new playlists:', newPlaylists);
     setPlaylistsState(newPlaylists);
     localStorage.setItem('lyrix_playlists', JSON.stringify(newPlaylists));
+  };
+
+  const addPlaylist = (playlist: Playlist) => {
+    setPlaylists([...playlists, playlist]);
   };
 
   const login = async (authToken: string, userEmail: string) => {
@@ -49,16 +59,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
       if (res.ok) {
         const fetchedPlaylists = await res.json();
-        setPlaylists(fetchedPlaylists);
+        if (Array.isArray(fetchedPlaylists)) {
+          setPlaylists(fetchedPlaylists);
+        } else {
+          setPlaylists([fetchedPlaylists]);
+        }
         console.log('✅ Playlists loaded on login:', fetchedPlaylists);
       } else {
         console.warn('Failed to fetch playlists on login');
-        setPlaylistsState(null);
+        setPlaylistsState([]);
         localStorage.removeItem('lyrix_playlists');
       }
     } catch (err) {
       console.error('Error fetching playlists on login:', err);
-      setPlaylistsState(null);
+      setPlaylistsState([]);
       localStorage.removeItem('lyrix_playlists');
     }
   };
@@ -66,20 +80,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     console.log('🔒 logout() called');
     console.log('📦 Playlists from state:', playlists);
-    
-    // Double-check localStorage for playlists
-    const storedPlaylists = localStorage.getItem('lyrix_playlists');
-    console.log('📦 Playlists from localStorage:', storedPlaylists);
-    
-    const playlistsToSave = playlists && playlists.length > 0 ? playlists : 
-                            (storedPlaylists ? JSON.parse(storedPlaylists) : null);
   
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
   
-    if (token && playlistsToSave && playlistsToSave.length > 0) {
+    if (token && playlists.length > 0) {
       try {
         console.log('🌐 Logout using API_BASE:', API_BASE);
-        console.log('Saving playlists:', playlistsToSave);
+        console.log('Saving playlists:', playlists);
         
         const res = await fetch(`${API_BASE}/api/v1/playlists`, {
           method: 'POST',
@@ -87,7 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(playlistsToSave),
+          body: JSON.stringify(playlists),
         });
   
         console.log('✅ Playlist save response:', res.status);
@@ -104,7 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
     setToken(null);
     setEmail(null);
-    setPlaylistsState(null);
+    setPlaylistsState([]);
     localStorage.removeItem('token');
     localStorage.removeItem('email');
     localStorage.removeItem('lyrix_playlists');
@@ -113,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ token, email, playlists, login, logout, setPlaylists }}>
+    <AuthContext.Provider value={{ token, email, playlists, login, logout, setPlaylists, addPlaylist }}>
       {children}
     </AuthContext.Provider>
   );
