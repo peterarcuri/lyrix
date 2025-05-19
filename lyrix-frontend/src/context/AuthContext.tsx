@@ -25,10 +25,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [playlists]);
 
   const setPlaylists = (newPlaylists: any[]) => {
-    console.log('Setting new playlists:', newPlaylists);
+    if (!Array.isArray(newPlaylists)) {
+      console.error('❌ setPlaylists received non-array:', newPlaylists);
+      return;
+    }
+    console.log('✅ Setting playlists:', newPlaylists);
     setPlaylistsState(newPlaylists);
     localStorage.setItem('lyrix_playlists', JSON.stringify(newPlaylists));
   };
+  
 
   const addPlaylist = (newPlaylist: any) => {
     const updated = [...(playlists || []), newPlaylist];
@@ -71,13 +76,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     console.log('🔒 logout() called');
     console.log('📦 Playlists from state:', playlists);
-    
+  
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
   
-    if (token && playlists && playlists.length > 0) {
+    if (token && Array.isArray(playlists) && playlists.length > 0) {
       try {
-        console.log('🌐 Saving playlists on logout');
-        
+        console.log('🧪 Confirmed playlists is array:', Array.isArray(playlists));
+        console.log('🧪 Playlists JSON payload:', JSON.stringify(playlists));
+  
         const res = await fetch(`${API_BASE}/api/v1/playlists`, {
           method: 'POST',
           headers: {
@@ -96,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Error saving playlists before logout:', err);
       }
     } else {
-      console.log('No playlists to save before logout');
+      console.log('⚠️ No valid playlists to save before logout');
     }
   
     setToken(null);
@@ -108,6 +114,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
     window.location.href = '/';
   };
+  
 
   return (
     <AuthContext.Provider value={{ token, email, playlists, login, logout, setPlaylists, addPlaylist }}>
