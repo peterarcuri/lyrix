@@ -11,7 +11,6 @@ const Playlists: React.FC = () => {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
 
-  // Fetch playlists from backend on mount
   useEffect(() => {
     const fetchPlaylists = async () => {
       const token = localStorage.getItem('token');
@@ -24,18 +23,26 @@ const Playlists: React.FC = () => {
           },
         });
 
+        const contentType = res.headers.get('content-type');
         if (!res.ok) {
-          throw new Error('Failed to fetch playlists');
+          const text = await res.text();
+          throw new Error(`Fetch failed: ${res.status} - ${text}`);
+        }
+
+        if (!contentType || !contentType.includes('application/json')) {
+          const raw = await res.text();
+          throw new Error(`Unexpected response: ${raw}`);
         }
 
         const data: Playlist[] = await res.json();
-
         setPlaylists(data);
-        savePlaylists(data); // Update localStorage to match backend
+        savePlaylists(data);
       } catch (error) {
         console.error('Error fetching playlists:', error);
-        setPlaylists([]);
-        savePlaylists([]);
+
+        // Fallback to localStorage if fetch fails
+        const localData = getPlaylists();
+        setPlaylists(localData);
       }
     };
 
