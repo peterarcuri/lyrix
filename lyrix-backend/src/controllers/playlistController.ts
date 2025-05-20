@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { AuthenticatedRequest } from '../types';
 import Playlist from '../models/Playlist';
 
+// Fetch playlists for the authenticated user
 export async function getUserPlaylists(req: AuthenticatedRequest, res: Response) {
   try {
     console.log('Fetching playlists for user:', req.userId);
@@ -13,6 +14,7 @@ export async function getUserPlaylists(req: AuthenticatedRequest, res: Response)
   }
 }
 
+// Save playlists for the authenticated user
 export async function saveUserPlaylists(req: AuthenticatedRequest, res: Response) {
   try {
     const userId = req.userId;
