@@ -5,8 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { getPlaylists } from '../utils/playlistStorage';
 import React from 'react';
 
-
-
 export default function Navbar() {
   const { email, logout } = useAuth();
   const navigate = useNavigate();
@@ -16,8 +14,8 @@ export default function Navbar() {
     const token = localStorage.getItem('token');
 
     try {
-      if (token && playlists.length > 0) {
-        await fetch('/api/playlists', {
+      if (token) {
+        await fetch('/api/v1/playlists', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -44,15 +42,9 @@ export default function Navbar() {
     navigate('/');
     window.location.reload(); // Force page reload to reset state
   };
- 
 
   return (
-    <nav
-      className="navbar"
-      style={{
-        backgroundColor: '#004687',
-      }}
-    >
+    <nav className="navbar" style={{ backgroundColor: '#004687' }}>
       <div className="logo-container">
         <div onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
           <img src={lyrixLogo} alt="Lyrix Logo" className="lyrix-logo" />
