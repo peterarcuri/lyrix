@@ -1,17 +1,46 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   getPlaylists,
   removeSongFromPlaylist,
   removePlaylist,
   savePlaylists,
-} from '../../src/utils/playlistStorage';
+} from '../utils/playlistStorage';
 import { Playlist } from '../types';
 
 const Playlists: React.FC = () => {
-  const [playlists, setPlaylists] = useState<Playlist[]>(getPlaylists());
-  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(
-    null
-  );
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
+
+  // Fetch playlists from backend on mount
+  useEffect(() => {
+    const fetchPlaylists = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const res = await fetch('/api/v1/playlists', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch playlists');
+        }
+
+        const data: Playlist[] = await res.json();
+
+        setPlaylists(data);
+        savePlaylists(data); // Update localStorage to match backend
+      } catch (error) {
+        console.error('Error fetching playlists:', error);
+        setPlaylists([]);
+        savePlaylists([]);
+      }
+    };
+
+    fetchPlaylists();
+  }, []);
 
   const handleRemove = (playlistName: string, songId: string) => {
     removeSongFromPlaylist(playlistName, songId);
@@ -118,18 +147,22 @@ const Playlists: React.FC = () => {
   return (
     <div className="playlist-container">
       <h2 className="playlist-title">Your Playlists</h2>
-      <ul className="playlist-list">
-        {playlists.map((p) => (
-          <li key={p.name}>
-            <button
-              onClick={() => setSelectedPlaylist(p)}
-              className="playlist-button"
-            >
-              {p.name}
-            </button>
-          </li>
-        ))}
-      </ul>
+      {playlists.length === 0 ? (
+        <p>No playlists saved yet.</p>
+      ) : (
+        <ul className="playlist-list">
+          {playlists.map((p) => (
+            <li key={p.name}>
+              <button
+                onClick={() => setSelectedPlaylist(p)}
+                className="playlist-button"
+              >
+                {p.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
