@@ -1,26 +1,58 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import lyrixLogo from '../assets/lyrixLogo.png';
+import { useNavigate } from 'react-router-dom';
+import { getPlaylists } from '../utils/playlistStorage';
+import React from 'react';
+
+
 
 export default function Navbar() {
   const { email, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/');
-  };
+    const playlists = getPlaylists();
+    const token = localStorage.getItem('token');
 
-  const handleLogoClick = () => {
+    try {
+      if (token && playlists.length > 0) {
+        await fetch('/api/playlists', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(playlists),
+        });
+      }
+    } catch (error) {
+      console.error('Failed to save playlists:', error);
+    }
+
+    localStorage.removeItem('lyrix_playlists');
+    localStorage.removeItem('token');
     localStorage.removeItem('searchQuery');
-    navigate('/');
+
+    logout(); // your auth context
+    navigate('/'); // ✅ this is a function call
     window.location.reload();
   };
 
+  const handleLogoClick = () => {
+    localStorage.removeItem('searchQuery'); // Clear stored query if you're using it
+    navigate('/');
+    window.location.reload(); // Force page reload to reset state
+  };
+ 
+
   return (
-    <nav className="navbar" style={{ backgroundColor: '#004687' }}>
+    <nav
+      className="navbar"
+      style={{
+        backgroundColor: '#004687',
+      }}
+    >
       <div className="logo-container">
         <div onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
           <img src={lyrixLogo} alt="Lyrix Logo" className="lyrix-logo" />
