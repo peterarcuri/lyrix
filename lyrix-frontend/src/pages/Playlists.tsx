@@ -1,45 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { Playlist } from '../types';
+import React, { useState } from 'react';
 import {
+  getPlaylists,
   removeSongFromPlaylist,
   removePlaylist,
   savePlaylists,
 } from '../../src/utils/playlistStorage';
+import { Playlist } from '../types';
 
 const Playlists: React.FC = () => {
-  const { playlists, setPlaylists } = useAuth();  // use global context
-  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
-
-  useEffect(() => {
-    // Optional: sync localStorage whenever playlists context changes
-    if (playlists) savePlaylists(playlists);
-  }, [playlists]);
+  const [playlists, setPlaylists] = useState<Playlist[]>(getPlaylists());
+  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(
+    null
+  );
 
   const handleRemove = (playlistName: string, songId: string) => {
-    const updatedPlaylists = playlists?.map(p => {
-      if (p.name === playlistName) {
-        return {
-          ...p,
-          songs: p.songs.filter(song => song._id !== songId),
-        };
-      }
-      return p;
-    }) || [];
-
-    setPlaylists(updatedPlaylists);
-    const updatedSelected = updatedPlaylists.find(p => p.name === playlistName) || null;
-    setSelectedPlaylist(updatedSelected);
+    removeSongFromPlaylist(playlistName, songId);
+    const updated = getPlaylists();
+    setPlaylists(updated);
+    if (selectedPlaylist) {
+      const selected = updated.find((p) => p.name === playlistName) || null;
+      setSelectedPlaylist(selected);
+    }
   };
 
   const handleRemovePlaylist = (playlistName: string) => {
-    const updated = playlists?.filter(p => p.name !== playlistName) || [];
+    removePlaylist(playlistName);
+    const updated = getPlaylists();
     setPlaylists(updated);
     setSelectedPlaylist(null);
   };
 
   const moveSong = (index: number, direction: 'up' | 'down') => {
-    if (!selectedPlaylist || !playlists) return;
+    if (!selectedPlaylist) return;
 
     const updatedSongs = [...selectedPlaylist.songs];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
@@ -51,7 +43,7 @@ const Playlists: React.FC = () => {
       updatedSongs[index],
     ];
 
-    const updatedPlaylist = {
+    const updatedPlaylist: Playlist = {
       ...selectedPlaylist,
       songs: updatedSongs,
     };
@@ -60,18 +52,21 @@ const Playlists: React.FC = () => {
       p.name === selectedPlaylist.name ? updatedPlaylist : p
     );
 
+    savePlaylists(updatedPlaylists);
     setPlaylists(updatedPlaylists);
     setSelectedPlaylist(updatedPlaylist);
   };
 
-  if (!playlists) return <p>Loading...</p>;
-
   if (selectedPlaylist) {
     return (
       <div className="playlist-container">
-        <button onClick={() => setSelectedPlaylist(null)} className="back-button">
+        <button
+          onClick={() => setSelectedPlaylist(null)}
+          className="back-button"
+        >
           ← Back to Playlists
         </button>
+
         <div className="playlist-detail">
           <div className="playlist-header">
             <h3 className="playlist-name">{selectedPlaylist.name}</h3>
@@ -103,7 +98,9 @@ const Playlists: React.FC = () => {
                       ↓
                     </button>
                     <button
-                      onClick={() => handleRemove(selectedPlaylist.name, song._id)}
+                      onClick={() =>
+                        handleRemove(selectedPlaylist.name, song._id)
+                      }
                     >
                       Remove
                     </button>
