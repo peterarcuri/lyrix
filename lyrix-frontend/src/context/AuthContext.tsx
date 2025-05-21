@@ -1,15 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { login as apiLogin } from '../services/api';
 
 interface AuthContextProps {
   token: string | null;
   email: string | null;
   playlists: any[] | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (token: string, email: string) => Promise<void>;
   logout: () => Promise<void>;
-  setPlaylists: (playlists: any[]) => Promise<void>;
-  addPlaylist: (playlist: any) => Promise<void>;
-  removePlaylist: (playlistName: string) => Promise<void>;
+  setPlaylists: (playlists: any[]) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -22,121 +19,101 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return storedPlaylists ? JSON.parse(storedPlaylists) : null;
   });
 
-  const API_BASE = import.meta.env.VITE_API_BASE_URL;
+  useEffect(() => {
+    console.log('Playlists state updated:', playlists);
+  }, [playlists]);
 
-  // Helper function to update playlists in both state, localStorage, and server
-  const setPlaylists = async (newPlaylists: any[]) => {
+  const setPlaylists = (newPlaylists: any[]) => {
+    console.log('Setting new playlists:', newPlaylists);
     setPlaylistsState(newPlaylists);
     localStorage.setItem('lyrix_playlists', JSON.stringify(newPlaylists));
+  };
+
+  const login = async (authToken: string, userEmail: string) => {
+    setToken(authToken);
+    setEmail(userEmail);
+    localStorage.setItem('token', authToken);
+    localStorage.setItem('email', userEmail);
+  
+    const API_BASE = import.meta.env.VITE_API_BASE_URL;
+  
+    try {
+      console.log('🔍 VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
+  
+      const res = await fetch(`${API_BASE}/api/v1/playlists`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+  
+      if (res.ok) {
+        const fetchedPlaylists = await res.json();
+        setPlaylists(fetchedPlaylists);
+        console.log('✅ Playlists loaded on login:', fetchedPlaylists);
+      } else {
+        console.warn('Failed to fetch playlists on login');
+        setPlaylistsState(null);
+        localStorage.removeItem('lyrix_playlists');
+      }
+    } catch (err) {
+      console.error('Error fetching playlists on login:', err);
+      setPlaylistsState(null);
+      localStorage.removeItem('lyrix_playlists');
+    }
+  };
+  
+  const logout = async () => {
+    console.log('🔒 logout() called');
+    console.log('📦 Playlists from state:', playlists);
     
-    if (token) {
+    // Double-check localStorage for playlists
+    const storedPlaylists = localStorage.getItem('lyrix_playlists');
+    console.log('📦 Playlists from localStorage:', storedPlaylists);
+    
+    const playlistsToSave = playlists && playlists.length > 0 ? playlists : 
+                            (storedPlaylists ? JSON.parse(storedPlaylists) : null);
+  
+    const API_BASE = import.meta.env.VITE_API_BASE_URL;
+  
+    if (token && playlistsToSave && playlistsToSave.length > 0) {
       try {
+        console.log('🌐 Logout using API_BASE:', API_BASE);
+        console.log('Saving playlists:', playlistsToSave);
+        
         const res = await fetch(`${API_BASE}/api/v1/playlists`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(newPlaylists),
+          body: JSON.stringify(playlistsToSave),
         });
-        
+  
+        console.log('✅ Playlist save response:', res.status);
+  
         if (!res.ok) {
-          console.warn('Failed to save playlists to server');
+          console.warn('❌ Failed to save playlists on logout');
         }
       } catch (err) {
-        console.error('Error saving playlists to server:', err);
+        console.error('Error saving playlists before logout:', err);
       }
+    } else {
+      console.log('No playlists to save before logout');
     }
-  };
-
-  const addPlaylist = async (playlist: any) => {
-    const updatedPlaylists = [...(playlists || []), playlist];
-    await setPlaylists(updatedPlaylists);
-  };
-
-  const removePlaylist = async (playlistName: string) => {
-    const updatedPlaylists = (playlists || []).filter(p => p.name !== playlistName);
-    await setPlaylists(updatedPlaylists);
-  };
-
-  const fetchPlaylists = async () => {
-    if (token) {
-      try {
-        const res = await fetch(`${API_BASE}/api/v1/playlists`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        
-        if (res.ok) {
-          const fetchedPlaylists = await res.json();
-          setPlaylistsState(fetchedPlaylists);
-          localStorage.setItem('lyrix_playlists', JSON.stringify(fetchedPlaylists));
-        } else {
-          console.warn('Failed to fetch playlists from server');
-        }
-      } catch (err) {
-        console.error('Error fetching playlists from server:', err);
-      }
-    }
-  };
-
-  // Load playlists from server on initial mount
-  useEffect(() => {
-    const fetchPlaylists = async () => {
-      if (token) {
-        try {
-          const res = await fetch(`${API_BASE}/api/v1/playlists`, {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          
-          if (res.ok) {
-            const fetchedPlaylists = await res.json();
-            setPlaylistsState(fetchedPlaylists);
-            localStorage.setItem('lyrix_playlists', JSON.stringify(fetchedPlaylists));
-          } else {
-            console.warn('Failed to fetch playlists from server');
-          }
-        } catch (err) {
-          console.error('Error fetching playlists from server:', err);
-        }
-      }
-    };
-
-    fetchPlaylists();
-  }, [token]);
-
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await apiLogin({ email, password });
-      const { token: authToken, email: userEmail } = response.data;
-      setToken(authToken);
-      setEmail(userEmail);
-      localStorage.setItem('token', authToken);
-      localStorage.setItem('email', userEmail);
-      // Fetch playlists after successful login
-      await fetchPlaylists();
-    } catch (error) {
-      console.error('Login failed:', error);
-      throw error;
-    }
-  };
-
-  const logout = async () => {
+  
     setToken(null);
     setEmail(null);
     setPlaylistsState(null);
     localStorage.removeItem('token');
     localStorage.removeItem('email');
     localStorage.removeItem('lyrix_playlists');
+  
+    window.location.href = '/';
   };
 
   return (
-    <AuthContext.Provider value={{ token, email, playlists, login, logout, setPlaylists, addPlaylist, removePlaylist }}>
+    <AuthContext.Provider value={{ token, email, playlists, login, logout, setPlaylists }}>
       {children}
     </AuthContext.Provider>
   );
