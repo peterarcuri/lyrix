@@ -5,17 +5,19 @@ import { useNavigate } from 'react-router-dom';
 import { getPlaylists } from '../utils/playlistStorage';
 import React from 'react';
 
+
+
 export default function Navbar() {
   const { email, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     const playlists = getPlaylists();
-    console.log('Playlists before logout:', playlists);
     const token = localStorage.getItem('token');
+
     try {
-      if (token) {
-        const response = await fetch('/api/v1/playlists', {
+      if (token && playlists.length > 0) {
+        await fetch('/api/playlists', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -23,13 +25,6 @@ export default function Navbar() {
           },
           body: JSON.stringify(playlists),
         });
-        if (!response.ok) {
-          const errorText = await response.text(); // Get the error response as text
-          console.error('Error response:', errorText);
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const savedPlaylists = await response.json();
-        console.log('Playlists saved successfully:', savedPlaylists);
       }
     } catch (error) {
       console.error('Failed to save playlists:', error);
@@ -49,9 +44,15 @@ export default function Navbar() {
     navigate('/');
     window.location.reload(); // Force page reload to reset state
   };
+ 
 
   return (
-    <nav className="navbar" style={{ backgroundColor: '#004687' }}>
+    <nav
+      className="navbar"
+      style={{
+        backgroundColor: '#004687',
+      }}
+    >
       <div className="logo-container">
         <div onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
           <img src={lyrixLogo} alt="Lyrix Logo" className="lyrix-logo" />

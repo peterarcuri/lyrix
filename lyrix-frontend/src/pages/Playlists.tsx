@@ -1,40 +1,135 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from 'react';
+import {
+  getPlaylists,
+  removeSongFromPlaylist,
+  removePlaylist,
+  savePlaylists,
+} from '../../src/utils/playlistStorage';
+import { Playlist } from '../types';
 
-const Playlists = () => {
-  const { email } = useAuth();
-  const [playlists, setPlaylists] = useState([]);
+const Playlists: React.FC = () => {
+  const [playlists, setPlaylists] = useState<Playlist[]>(getPlaylists());
+  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(
+    null
+  );
 
-  useEffect(() => {
-    const fetchPlaylists = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const response = await fetch('/api/v1/playlists', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
-        setPlaylists(data);
-      }
+  const handleRemove = (playlistName: string, songId: string) => {
+    removeSongFromPlaylist(playlistName, songId);
+    const updated = getPlaylists();
+    setPlaylists(updated);
+    if (selectedPlaylist) {
+      const selected = updated.find((p) => p.name === playlistName) || null;
+      setSelectedPlaylist(selected);
+    }
+  };
+
+  const handleRemovePlaylist = (playlistName: string) => {
+    removePlaylist(playlistName);
+    const updated = getPlaylists();
+    setPlaylists(updated);
+    setSelectedPlaylist(null);
+  };
+
+  const moveSong = (index: number, direction: 'up' | 'down') => {
+    if (!selectedPlaylist) return;
+
+    const updatedSongs = [...selectedPlaylist.songs];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+
+    if (targetIndex < 0 || targetIndex >= updatedSongs.length) return;
+
+    [updatedSongs[index], updatedSongs[targetIndex]] = [
+      updatedSongs[targetIndex],
+      updatedSongs[index],
+    ];
+
+    const updatedPlaylist: Playlist = {
+      ...selectedPlaylist,
+      songs: updatedSongs,
     };
 
-    fetchPlaylists();
-  }, []);
+    const updatedPlaylists = playlists.map((p) =>
+      p.name === selectedPlaylist.name ? updatedPlaylist : p
+    );
+
+    savePlaylists(updatedPlaylists);
+    setPlaylists(updatedPlaylists);
+    setSelectedPlaylist(updatedPlaylist);
+  };
+
+  if (selectedPlaylist) {
+    return (
+      <div className="playlist-container">
+        <button
+          onClick={() => setSelectedPlaylist(null)}
+          className="back-button"
+        >
+          ← Back to Playlists
+        </button>
+
+        <div className="playlist-detail">
+          <div className="playlist-header">
+            <h3 className="playlist-name">{selectedPlaylist.name}</h3>
+            <button
+              onClick={() => handleRemovePlaylist(selectedPlaylist.name)}
+              className="remove-playlist-button"
+            >
+              Remove Playlist
+            </button>
+          </div>
+          <ul className="song-list">
+            {selectedPlaylist.songs.map((song, index) => (
+              <li key={song._id} className="song-item">
+                <div className="song-controls">
+                  <h4 className="playlist-songtitle-artist">
+                    {song.title} - {song.artist}
+                  </h4>
+                  <div className="song-buttons">
+                    <button
+                      onClick={() => moveSong(index, 'up')}
+                      disabled={index === 0}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      onClick={() => moveSong(index, 'down')}
+                      disabled={index === selectedPlaylist.songs.length - 1}
+                    >
+                      ↓
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleRemove(selectedPlaylist.name, song._id)
+                      }
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+                <pre className="song-lyrics">{song.songLyrics}</pre>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1>Your Playlists</h1>
-      {playlists.length === 0 ? (
-        <p>No playlists available.</p>
-      ) : (
-        <ul>
-          {playlists.map((playlist) => (
-            <li key={playlist._id}>{playlist.name}</li>
-          ))}
-        </ul>
-      )}
+    <div className="playlist-container">
+      <h2 className="playlist-title">Your Playlists</h2>
+      <ul className="playlist-list">
+        {playlists.map((p) => (
+          <li key={p.name}>
+            <button
+              onClick={() => setSelectedPlaylist(p)}
+              className="playlist-button"
+            >
+              {p.name}
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
