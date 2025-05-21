@@ -12,10 +12,9 @@ export default function Navbar() {
   const handleLogout = async () => {
     const playlists = getPlaylists();
     const token = localStorage.getItem('token');
-
     try {
       if (token) {
-        await fetch('/api/v1/playlists', {
+        const response = await fetch('/api/v1/playlists', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -23,6 +22,13 @@ export default function Navbar() {
           },
           body: JSON.stringify(playlists),
         });
+        if (!response.ok) {
+          const errorText = await response.text(); // Get the error response as text
+          console.error('Error response:', errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const savedPlaylists = await response.json();
+        console.log('Playlists saved successfully:', savedPlaylists);
       }
     } catch (error) {
       console.error('Failed to save playlists:', error);
