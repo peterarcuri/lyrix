@@ -2,9 +2,9 @@ import { Response } from 'express';
 import { AuthenticatedRequest } from '../types';
 import Playlist from '../models/Playlist';
 
-// Fetch playlists for the authenticated user
 export async function getUserPlaylists(req: AuthenticatedRequest, res: Response) {
   try {
+    console.log('Fetching playlists for user:', req.userId);
     const playlists = await Playlist.find({ userId: req.userId });
     res.json(playlists);
   } catch (err) {
@@ -13,13 +13,14 @@ export async function getUserPlaylists(req: AuthenticatedRequest, res: Response)
   }
 }
 
-// Save playlists for the authenticated user
 export async function saveUserPlaylists(req: AuthenticatedRequest, res: Response) {
   try {
     const userId = req.userId;
     const playlists = req.body;
 
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+    console.log('Received playlists for user', userId, playlists);  
 
     if (!Array.isArray(playlists)) {
       return res.status(400).json({ message: 'Expected an array of playlists' });
