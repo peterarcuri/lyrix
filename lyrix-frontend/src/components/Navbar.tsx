@@ -11,6 +11,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     const playlists = getPlaylists();
+    console.log('Playlists before logout:', playlists);
     const token = localStorage.getItem('token');
     try {
       if (token) {
