@@ -32,7 +32,8 @@ export async function saveUserPlaylists(req: AuthenticatedRequest, res: Response
     // Save new playlists
     const saved = await Playlist.insertMany(
       playlists.map((p: any) => ({
-        ...p,
+        name: p.name,
+        songs: p.songs,
         userId,
       }))
     );
