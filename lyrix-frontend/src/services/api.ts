@@ -6,6 +6,7 @@ const API = axios.create({
   baseURL: isDev
     ? '/api/v1' // Will be proxied to localhost:5000 by Vite dev server
     : 'https://lyrix.onrender.com/api/v1', // Direct link in production
+    withCredentials: true,
 });
 
 export const signup = (data: { email: string; password: string }) =>
