@@ -22,8 +22,7 @@ const allowedOrigins = ['https://lyrix-one.vercel.app'];
 app.use(express.json());
 
 app.use(cors({
-  origin: function (origin, callback) {
-    const allowedOrigins = ['https://lyrix-one.vercel.app'];
+  origin: function (origin, callback) {    
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
