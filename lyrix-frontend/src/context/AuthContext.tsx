@@ -47,6 +47,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (token && playlists) {
       try {
         const parsedPlaylists = JSON.parse(playlists || '[]');
+        console.log('Playlists before logout:', JSON.stringify(parsedPlaylists, null, 2));
+
         
         // Ensure playlists are not empty before attempting to save
         if (parsedPlaylists.length > 0) {
