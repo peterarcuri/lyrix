@@ -44,15 +44,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const playlists = localStorage.getItem('lyrix_playlists');
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
     
+    console.log('Logout called - API_BASE =', API_BASE); // <--- Add this line
+  
     if (token && playlists) {
       try {
         const parsedPlaylists = JSON.parse(playlists || '[]');
         console.log('Playlists before logout:', JSON.stringify(parsedPlaylists, null, 2));
-
-        
-        // Ensure playlists are not empty before attempting to save
+  
         if (parsedPlaylists.length > 0) {
-          console.log('Saving playlists before logout:', parsedPlaylists); // Log playlists to confirm
+          console.log('Saving playlists before logout:', parsedPlaylists);
           await fetch(`${API_BASE}/api/v1/playlists`, {
             method: 'POST',
             headers: {
@@ -68,13 +68,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Error saving playlists before logout:', err);
       }
     }
-    
+  
     setToken(null);
     setEmail(null);
     localStorage.removeItem('token');
     localStorage.removeItem('email');
     localStorage.removeItem('lyrix_playlists');
   };
+  
   
   
 
