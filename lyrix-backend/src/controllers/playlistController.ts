@@ -14,31 +14,34 @@ export async function getUserPlaylists(req: AuthenticatedRequest, res: Response)
 }
 
 export async function saveUserPlaylists(req: AuthenticatedRequest, res: Response) {
+
+  const userId = req.userId;
+  const playlists = req.body;
+
+  if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+  console.log('Received playlists for user', userId, playlists);  
+
+  if (!Array.isArray(playlists)) {
+    return res.status(400).json({ message: 'Expected an array of playlists' });
+  }
+
   try {
-    const userId = req.userId;
-    const playlists = req.body;
-
-    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
-
-    console.log('Received playlists for user', userId, playlists);  
-
-    if (!Array.isArray(playlists)) {
-      return res.status(400).json({ message: 'Expected an array of playlists' });
-    }
 
     // Remove existing playlists for this user
     await Playlist.deleteMany({ userId });
 
-    // Save new playlists
-    const saved = await Playlist.insertMany(
-      playlists.map((p: any) => ({
-        name: p.name,
-        songs: p.songs,
-        userId,
-      }))
-    );
+    // Add userId to each playlist
+    const playlistsToSave = playlists.map((p) => ({
+      userId,
+      name: p.name,
+      songs: p.songs,    
+    }));
 
-    res.status(201).json(saved);
+    await Playlist.insertMany(playlistsToSave);
+
+    return res.status(200).json({ message: 'Playlists saved successfully'  });
+
   } catch (err) {
     console.error('Error saving playlists:', err);
     res.status(500).json({ message: 'Failed to save playlists' });
