@@ -127,6 +127,38 @@ const Playlists: React.FC = () => {
     );
   }
 
+  if (selectedPlaylist) {
+    return (
+      <div className="playlist-container">
+        <div className="playlist-header">
+          <h2>{selectedPlaylist.name}</h2>
+          <button onClick={() => setSelectedPlaylist(null)}>Back to Playlists</button>
+          <button onClick={() => handleRemovePlaylist(selectedPlaylist.name)}>Delete Playlist</button>
+        </div>
+        <ul>
+          {selectedPlaylist.songs.map((song, index) => (
+            <li key={song._id} className="song-item">
+              <div className="song-header">
+                <h3>{song.title}</h3>
+                <p>{song.artist}</p>
+                <div className="song-controls">
+                  {index > 0 && (
+                    <button onClick={() => moveSong(index, 'up')}>&uarr;</button>
+                  )}
+                  {index < selectedPlaylist.songs.length - 1 && (
+                    <button onClick={() => moveSong(index, 'down')}>&darr;</button>
+                  )}
+                  <button onClick={() => handleRemove(selectedPlaylist.name, song._id)}>Remove</button>
+                </div>
+              </div>
+              <div className="song-lyrics">{song.songLyrics}</div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
   return (
     <div className="playlist-container">
       <h2 className="playlist-title">Your Playlists</h2>
@@ -139,44 +171,9 @@ const Playlists: React.FC = () => {
             >
               {p.name}
             </button>
-            <button
-              onClick={() => handleRemovePlaylist(p.name)}
-              className="remove-playlist-button"
-            >
-              Delete
-            </button>
           </li>
         ))}
       </ul>
-      {selectedPlaylist && (
-        <div className="selected-playlist">
-          <h3>{selectedPlaylist.name}</h3>
-          <ul>
-            {selectedPlaylist.songs.map((song, index) => (
-              <li key={song._id}>
-                <div className="song-info">
-                  <span>{song.title} - {song.artist}</span>
-                  <div className="song-controls">
-                    <button onClick={() => moveSong(index, 'up')} disabled={index === 0}>
-                      ↑
-                    </button>
-                    <button 
-                      onClick={() => moveSong(index, 'down')} 
-                      disabled={index === selectedPlaylist.songs.length - 1}
-                    >
-                      ↓
-                    </button>
-                    <button onClick={() => handleRemove(selectedPlaylist.name, song._id)}>
-                      Remove
-                    </button>
-                  </div>
-                </div>
-                <pre className="song-lyrics">{song.songLyrics}</pre>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 };
