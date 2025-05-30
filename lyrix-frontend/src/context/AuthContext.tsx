@@ -87,10 +87,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         if (!res.ok) {
-          console.error('Failed to save playlists before logout');
+          const errorData = await res.json().catch(() => ({}));
+          console.error('Failed to save playlists before logout:', errorData);
+          throw new Error('Failed to save playlists');
         }
       } catch (err) {
         console.error('Error saving playlists before logout:', err);
+        // Continue with logout even if saving playlists fails
       }
     }
 
@@ -99,6 +102,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setPlaylists(null);
     localStorage.removeItem('token');
     localStorage.removeItem('email');
+    localStorage.removeItem('lyrix_playlists');
+    localStorage.removeItem('searchQuery');
   };
 
   return (

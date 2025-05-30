@@ -12,31 +12,9 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    const playlists = getPlaylists();
-    const token = localStorage.getItem('token');
-
-    try {
-      if (token && playlists.length > 0) {
-        await fetch('/api/playlists', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(playlists),
-        });
-      }
-    } catch (error) {
-      console.error('Failed to save playlists:', error);
-    }
-
-    localStorage.removeItem('lyrix_playlists');
-    localStorage.removeItem('token');
-    localStorage.removeItem('searchQuery');
-
-    logout(); // your auth context
-    navigate('/'); // ✅ this is a function call
-    window.location.reload();
+    // Let the AuthContext handle the logout
+    await logout();
+    navigate('/');
   };
 
   const handleLogoClick = () => {
