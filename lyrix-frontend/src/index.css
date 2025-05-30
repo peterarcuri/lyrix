@@ -116,7 +116,7 @@ h3.playlist-name {
 }
 
 h4 {
-  font-size: 1.2rem;
+  font-size: 2.2rem;
   line-height: 1.1;
   color: #020024
 }
@@ -422,6 +422,11 @@ a:focus {
   color: #b9d9eb;
   border: 1px solid #333;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.artist {
+  color: #020024;
+  font-size: 1.2rem;
 }
 
 .playlist-header {
