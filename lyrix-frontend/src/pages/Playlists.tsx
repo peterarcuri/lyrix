@@ -20,51 +20,53 @@ interface Playlist {
 }
 
 const Playlists: React.FC = () => {
-  const [playlists, setPlaylists] = useState<Playlist[]>(getPlaylists());
-  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(
-    null
-  );
+  const { playlists, setPlaylists } = useAuth();
+  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
+
+  // If playlists is null, use an empty array
+  const playlistsData = playlists || [];
 
   const handleRemove = (playlistName: string, songId: string) => {
-    removeSongFromPlaylist(playlistName, songId);
-    const updated = getPlaylists();
-    setPlaylists(updated);
+    if (!playlistsData) return;
+    
+    const updatedPlaylists = playlistsData.map(p => 
+      p.name === playlistName 
+        ? { ...p, songs: p.songs.filter(s => s._id !== songId) }
+        : p
+    );
+
+    setPlaylists(updatedPlaylists);
     if (selectedPlaylist) {
-      const selected = updated.find((p) => p.name === playlistName) || null;
+      const selected = updatedPlaylists.find((p) => p.name === playlistName) || null;
       setSelectedPlaylist(selected);
     }
   };
 
   const handleRemovePlaylist = (playlistName: string) => {
-    removePlaylist(playlistName);
-    const updated = getPlaylists();
-    setPlaylists(updated);
+    if (!playlistsData) return;
+    
+    const updatedPlaylists = playlistsData.filter(p => p.name !== playlistName);
+    setPlaylists(updatedPlaylists);
     setSelectedPlaylist(null);
   };
 
   const moveSong = (index: number, direction: 'up' | 'down') => {
-    if (!selectedPlaylist) return;
+    if (!selectedPlaylist || !playlistsData) return;
 
     const updatedSongs = [...selectedPlaylist.songs];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
 
     if (targetIndex < 0 || targetIndex >= updatedSongs.length) return;
 
-    [updatedSongs[index], updatedSongs[targetIndex]] = [
-      updatedSongs[targetIndex],
-      updatedSongs[index],
-    ];
+    const temp = updatedSongs[index];
+    updatedSongs[index] = updatedSongs[targetIndex];
+    updatedSongs[targetIndex] = temp;
 
-    const updatedPlaylist: Playlist = {
-      ...selectedPlaylist,
-      songs: updatedSongs,
-    };
-
-    const updatedPlaylists = playlists.map((p) =>
+    const updatedPlaylist = { ...selectedPlaylist, songs: updatedSongs };
+    const updatedPlaylists = playlistsData.map((p) =>
       p.name === selectedPlaylist.name ? updatedPlaylist : p
     );
 
-    savePlaylists(updatedPlaylists);
     setPlaylists(updatedPlaylists);
     setSelectedPlaylist(updatedPlaylist);
   };
@@ -129,7 +131,7 @@ const Playlists: React.FC = () => {
     <div className="playlist-container">
       <h2 className="playlist-title">Your Playlists</h2>
       <ul className="playlist-list">
-        {playlists.map((p) => (
+        {playlistsData.map((p) => (
           <li key={p.name}>
             <button
               onClick={() => setSelectedPlaylist(p)}
@@ -137,9 +139,44 @@ const Playlists: React.FC = () => {
             >
               {p.name}
             </button>
+            <button
+              onClick={() => handleRemovePlaylist(p.name)}
+              className="remove-playlist-button"
+            >
+              Delete
+            </button>
           </li>
         ))}
       </ul>
+      {selectedPlaylist && (
+        <div className="selected-playlist">
+          <h3>{selectedPlaylist.name}</h3>
+          <ul>
+            {selectedPlaylist.songs.map((song, index) => (
+              <li key={song._id}>
+                <div className="song-info">
+                  <span>{song.title} - {song.artist}</span>
+                  <div className="song-controls">
+                    <button onClick={() => moveSong(index, 'up')} disabled={index === 0}>
+                      ↑
+                    </button>
+                    <button 
+                      onClick={() => moveSong(index, 'down')} 
+                      disabled={index === selectedPlaylist.songs.length - 1}
+                    >
+                      ↓
+                    </button>
+                    <button onClick={() => handleRemove(selectedPlaylist.name, song._id)}>
+                      Remove
+                    </button>
+                  </div>
+                </div>
+                <pre className="song-lyrics">{song.songLyrics}</pre>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
