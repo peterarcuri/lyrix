@@ -1,17 +1,45 @@
 import React, { createContext, useContext, useState } from 'react';
 
-interface AuthContextProps {
-  token: string | null;
-  email: string | null;
-  login: (token: string, email: string) => Promise<void>;
-  logout: () => Promise<void>;
+interface Song {
+  _id: string;
+  title: string;
+  artist: string;
+  songLyrics: string;
 }
 
-const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+interface Playlist {
+  name: string;
+  songs: Song[];
+}
+
+interface AuthContextType {
+  token: string | null;
+  email: string | null;
+  playlists: Playlist[] | null;
+  login: (token: string, email: string) => Promise<void>;
+  logout: () => Promise<void>;
+  setPlaylists: (playlists: Playlist[] | null) => void;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [email, setEmail] = useState<string | null>(localStorage.getItem('email'));
+  const [playlists, setPlaylistsState] = useState<Playlist[] | null>(() => {
+    const stored = localStorage.getItem('lyrix_playlists');
+    return stored ? JSON.parse(stored) : null;
+  });
+
+  // Helper function to update playlists in both state and localStorage
+  const setPlaylists = (newPlaylists: Playlist[] | null) => {
+    setPlaylistsState(newPlaylists);
+    if (newPlaylists) {
+      localStorage.setItem('lyrix_playlists', JSON.stringify(newPlaylists));
+    } else {
+      localStorage.removeItem('lyrix_playlists');
+    }
+  };
 
   const login = async (authToken: string, email: string) => {
     setToken(authToken);
@@ -30,57 +58,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (res.ok) {
-        const playlists = await res.json();
-        localStorage.setItem('lyrix_playlists', JSON.stringify(playlists));
+        const fetchedPlaylists = await res.json();
+        setPlaylists(fetchedPlaylists);
+        console.log(' Playlists loaded on login:', fetchedPlaylists);
       } else {
         console.warn('Failed to fetch playlists on login');
+        setPlaylists(null);
       }
     } catch (err) {
       console.error('Error fetching playlists on login:', err);
+      setPlaylists(null);
     }
   };
 
   const logout = async () => {
-    const playlists = localStorage.getItem('lyrix_playlists');
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
     
-    console.log('Logout called - API_BASE =', API_BASE); // <--- Add this line
-  
-    if (token && playlists) {
+    if (token && playlists && playlists.length > 0) {
       try {
-        const parsedPlaylists = JSON.parse(playlists || '[]');
-        console.log('Playlists before logout:', JSON.stringify(parsedPlaylists, null, 2));
-  
-        if (parsedPlaylists.length > 0) {
-          console.log('Saving playlists before logout:', parsedPlaylists);
-          await fetch(`${API_BASE}/api/v1/playlists`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(parsedPlaylists),
-          });
-        } else {
-          console.log('No playlists to save before logout');
+        console.log('Saving playlists before logout:', playlists);
+        const res = await fetch(`${API_BASE}/api/v1/playlists`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(playlists),
+        });
+
+        if (!res.ok) {
+          console.error('Failed to save playlists before logout');
         }
       } catch (err) {
         console.error('Error saving playlists before logout:', err);
       }
     }
-  
+
     setToken(null);
     setEmail(null);
+    setPlaylists(null);
     localStorage.removeItem('token');
     localStorage.removeItem('email');
-    localStorage.removeItem('lyrix_playlists');
   };
-  
-  
-  
 
   return (
-    <AuthContext.Provider value={{ token, email, login, logout }}>
+    <AuthContext.Provider value={{ token, email, playlists, login, logout, setPlaylists }}>
       {children}
     </AuthContext.Provider>
   );
