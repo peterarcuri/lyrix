@@ -90,30 +90,31 @@ const Playlists: React.FC = () => {
             Back to Playlists
           </button>
           <h2>{selectedPlaylist.name}</h2>
-          <button
-            onClick={() => handleRemovePlaylist(selectedPlaylist.name)}
-            className="remove-playlist-button"
-          >
-            Remove Playlist
-          </button>
         </div>
 
         <div className="playlist-songs">
           <h3>Songs</h3>
           <ul className="song-list">
             {selectedPlaylist.songs.length > 0 ? (
-              selectedPlaylist.songs.map((song) => (
+              selectedPlaylist.songs.map((song, index) => (
                 <li key={song._id} className="song-item">
                   <div className="song-header">
                     <h4>{song.title}</h4>
                     <p className="artist">{song.artist}</p>
-                    <button
-                      onClick={() =>
-                        handleRemove(selectedPlaylist.name, song._id)
-                      }
-                    >
-                      Remove
-                    </button>
+                    <div className="song-controls">
+                      {index > 0 && (
+                        <button onClick={() => moveSong(index, 'up')}>&uarr;</button>
+                      )}
+                      {index < selectedPlaylist.songs.length - 1 && (
+                        <button onClick={() => moveSong(index, 'down')}>&darr;</button>
+                      )}
+                      <button
+                        onClick={() => handleRemove(selectedPlaylist.name, song._id)}
+                        className="remove-song-button"
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
                   <pre className="song-lyrics">{song.songLyrics}</pre>
                 </li>
