@@ -89,11 +89,11 @@ const Playlists: React.FC = () => {
           >
             Back to Playlists
           </button>
-          <h2>{selectedPlaylist.name}</h2>
+         
         </div>
 
         <div className="playlist-songs">
-          <h3>Songs</h3>
+        <h2>{selectedPlaylist.name}</h2>
           <ul className="song-list">
             {selectedPlaylist.songs.length > 0 ? (
               selectedPlaylist.songs.map((song, index) => (

@@ -115,6 +115,12 @@ h3.playlist-name {
   text-transform: none; /* Prevent any text transformation */
 }
 
+h4 {
+  font-size: 1.2rem;
+  line-height: 1.1;
+  color: #020024
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
